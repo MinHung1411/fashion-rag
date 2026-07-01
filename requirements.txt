@@ -1,0 +1,10 @@
+transformers>=4.40
+accelerate>=0.29
+torch>=2.0
+faiss-cpu
+datasets
+sentencepiece
+Pillow
+pandas
+numpy
+huggingface_hub
