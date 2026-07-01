@@ -18,6 +18,12 @@ ENV/
 huggingface_token.txt
 token
 
+# Data & Caches
+deploy huggingface/
+*.faiss
+*.csv
+caption_cache.json
+
 # OS generated files
 .DS_Store
 .DS_Store?
