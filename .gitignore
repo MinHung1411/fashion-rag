@@ -32,3 +32,9 @@ caption_cache.json
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Database & local data cache
+fashion_rag.db
+*.db
+*.sqlite
+data_cache/
