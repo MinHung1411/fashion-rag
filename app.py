@@ -24,7 +24,8 @@ except Exception as e:
     print(f"Notice mounting gradio: {e}")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 7860))
+    # Hugging Face Spaces always exposes port 7860 for web apps
+    port = 7860
     print("=" * 65)
     print("🛍️  FASHION RAG — MULTIMODAL AI ASSISTANT  (v2.0)")
     print("   Author: Ho Minh Hung")
