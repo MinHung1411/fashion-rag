@@ -63,6 +63,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Allow Hugging Face Spaces iframe embedding
+@app.middleware("http")
+async def add_frame_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "ALLOWALL"
+    return response
+
 # Mount API Routers
 app.include_router(auth_router, prefix=settings.API_PREFIX)
 app.include_router(conversations_router, prefix=settings.API_PREFIX)
