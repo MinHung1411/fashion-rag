@@ -2,7 +2,7 @@
 title: Fashion RAG — Multimodal AI Assistant
 emoji: 🛍️
 colorFrom: indigo
-colorTo: violet
+colorTo: purple
 sdk: gradio
 sdk_version: "5.35.0"
 app_file: app.py
