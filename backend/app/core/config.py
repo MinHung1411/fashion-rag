@@ -30,9 +30,21 @@ class Settings:
     
     # Local Caching Paths
     DATA_CACHE_DIR: str = CACHE_DIR
-    FAISS_PATH: str = os.path.join(CACHE_DIR, "fashion_clip_image.faiss")
-    META_PATH: str = os.path.join(CACHE_DIR, "fashion_image_meta.csv")
-    CAPTION_PATH: str = os.path.join(CACHE_DIR, "caption_cache.json")
+    FAISS_PATH: str = (
+        os.path.join(BASE_DIR, "fashion_clip_image.faiss")
+        if os.path.exists(os.path.join(BASE_DIR, "fashion_clip_image.faiss"))
+        else os.path.join(CACHE_DIR, "fashion_clip_image.faiss")
+    )
+    META_PATH: str = (
+        os.path.join(BASE_DIR, "fashion_image_meta.csv")
+        if os.path.exists(os.path.join(BASE_DIR, "fashion_image_meta.csv"))
+        else os.path.join(CACHE_DIR, "fashion_image_meta.csv")
+    )
+    CAPTION_PATH: str = (
+        os.path.join(BASE_DIR, "caption_cache.json")
+        if os.path.exists(os.path.join(BASE_DIR, "caption_cache.json"))
+        else os.path.join(CACHE_DIR, "caption_cache.json")
+    )
     
     # Search Defaults
     DEFAULT_TOP_K: int = 5

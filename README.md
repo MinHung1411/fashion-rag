@@ -1,3 +1,15 @@
+---
+title: Fashion RAG — Multimodal AI Assistant
+emoji: 🛍️
+colorFrom: indigo
+colorTo: violet
+sdk: gradio
+sdk_version: "5.35.0"
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 🛍️ Fashion RAG v2.0 — Multimodal Fashion AI Assistant
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
