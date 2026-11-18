@@ -15,6 +15,8 @@ class ProductItem(BaseModel):
     score: float = 0.0
     caption: str = ""
     image_url: str = ""
+    slot: Optional[str] = None
+    slot_icon: Optional[str] = None
 
 class GroundingInfo(BaseModel):
     grounded: bool
@@ -37,6 +39,7 @@ class AskQueryRequest(BaseModel):
 class AskQueryResponse(BaseModel):
     answer: str
     query: str
+    is_outfit: bool = False
     products: List[ProductItem] = []
     grounding: GroundingInfo
     filters: Dict[str, Any] = {}

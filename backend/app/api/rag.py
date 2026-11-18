@@ -51,6 +51,7 @@ def ask_rag(req: AskQueryRequest):
     return AskQueryResponse(
         answer=result["answer"],
         query=result["query"],
+        is_outfit=result.get("is_outfit", False),
         products=prod_items,
         grounding=GroundingInfo(**result["grounding"]),
         filters=result["filters"],

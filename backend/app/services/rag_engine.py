@@ -332,23 +332,23 @@ class RagEngine:
         gender = top1.get("gender", "")
         
         if is_vietnamese:
-            if len(products) == 1:
-                return f"Dựa trên catalog thời trang, sản phẩm nổi bật nhất là '{top1_name}' ({color} {category} dành cho {gender})."
-            top2 = products[1]
-            top2_name = top2.get("productDisplayName", "")
-            return (
-                f"Dựa trên catalog thời trang quốc tế, các gợi ý hàng đầu bao gồm '{top1_name}' và '{top2_name}'. "
-                f"Các sản phẩm sở hữu phong cách thiết kế chuẩn xu hướng, tone màu {color.lower()} và hoàn toàn phù hợp với tiêu chí của bạn."
-            )
+            lines = [f"Dựa trên catalog thời trang quốc tế, dưới đây là các gợi ý phù hợp nhất dành cho bạn:\n"]
+            for p in products[:4]:
+                p_name = p.get("productDisplayName", "")
+                p_color = p.get("baseColour", "")
+                p_gender = p.get("gender", "")
+                lines.append(f"• {p_name} — ({p_color}, {p_gender})")
+            lines.append(f"\nCác sản phẩm sở hữu phong cách thiết kế chuẩn xu hướng, tone màu hài hòa và hoàn toàn phù hợp với tiêu chí của bạn.")
+            return "\n".join(lines)
         else:
-            if len(products) == 1:
-                return f"Based on the fashion catalog, the top matching product is '{top1_name}' ({color} {category} for {gender})."
-            top2 = products[1]
-            top2_name = top2.get("productDisplayName", "")
-            return (
-                f"Based on the fashion catalog, top recommended options include '{top1_name}' and '{top2_name}', "
-                f"featuring {color.lower()} styling perfectly tailored for your request."
-            )
+            lines = [f"Based on the international fashion catalog, here are the top recommendations for your request:\n"]
+            for p in products[:4]:
+                p_name = p.get("productDisplayName", "")
+                p_color = p.get("baseColour", "")
+                p_gender = p.get("gender", "")
+                lines.append(f"• {p_name} — ({p_color}, {p_gender})")
+            lines.append(f"\nThese items feature modern styling perfectly tailored for your request.")
+            return "\n".join(lines)
 
     def generate_answer(self, prompt: str, query: str, products: List[Dict[str, Any]], translated_from: Optional[str] = None) -> str:
         is_vi = (translated_from is not None) or any(c in VIETNAMESE_CHARS for c in query.lower())
@@ -401,10 +401,10 @@ class RagEngine:
         gender = gender_filter or filters.get("gender") or "Men"
         
         slots_def = [
-            {"slot": "Trang phục chính", "icon": "👔" if gender == "Men" else "👗", "categories": ["Topwear", "Dress"], "sub_query": f"{search_query} shirt topwear dress"},
-            {"slot": "Quần / Chân váy", "icon": "👖", "categories": ["Bottomwear"], "sub_query": f"{search_query} trousers jeans bottomwear"},
-            {"slot": "Giày dép thời trang", "icon": "👞" if gender == "Men" else "👠", "categories": ["Footwear", "Shoes", "Sandal"], "sub_query": f"{search_query} formal casual shoes footwear"},
-            {"slot": "Phụ kiện hoàn thiện", "icon": "⌚" if gender == "Men" else "👜", "categories": ["Accessories", "Bags", "Watches", "Belts"], "sub_query": f"{search_query} accessories watch bag"}
+            {"slot": "Áo" if gender == "Men" else "Váy/Áo", "icon": "👔" if gender == "Men" else "👗", "categories": ["Topwear", "Dress"], "sub_query": f"{search_query} shirt topwear dress"},
+            {"slot": "Quần", "icon": "👖", "categories": ["Bottomwear"], "sub_query": f"{search_query} trousers jeans bottomwear"},
+            {"slot": "Giày", "icon": "👞" if gender == "Men" else "👠", "categories": ["Footwear", "Shoes", "Sandal"], "sub_query": f"{search_query} formal casual shoes footwear"},
+            {"slot": "Phụ kiện", "icon": "⌚" if gender == "Men" else "👜", "categories": ["Accessories", "Bags", "Watches", "Belts"], "sub_query": f"{search_query} accessories watch bag"}
         ]
         
         outfit_items = []
@@ -423,7 +423,7 @@ class RagEngine:
                 m_cat = p.get("masterCategory", "")
                 s_cat = p.get("subCategory", "")
                 if any(c.lower() in (m_cat + " " + s_cat).lower() for c in s["categories"]):
-                    if s["slot"] == "Quần / Chân váy" and outfit_items and outfit_items[0].get("subCategory") == "Dress":
+                    if s["slot"] in ("Quần", "Quần / Chân váy") and outfit_items and outfit_items[0].get("subCategory") == "Dress":
                         continue
                     p_copy = dict(p)
                     p_copy["score"] = float(score)
@@ -439,25 +439,17 @@ class RagEngine:
             return self.ask(query, top_k=5, gender_filter=gender_filter)
 
         t_retrieval = time.time() - t0
-        top_item = outfit_items[0] if len(outfit_items) > 0 else {}
-        bot_item = outfit_items[1] if len(outfit_items) > 1 else {}
-        shoe_item = outfit_items[2] if len(outfit_items) > 2 else {}
-        acc_item = outfit_items[3] if len(outfit_items) > 3 else {}
         
-        top_name = top_item.get("productDisplayName", "Áo phong cách")
-        bot_name = bot_item.get("productDisplayName", "Quần đồng điệu")
-        shoe_name = shoe_item.get("productDisplayName", "Giày thời trang")
-        acc_name = acc_item.get("productDisplayName", "Phụ kiện điểm nhấn")
-        
-        answer = (
-            f"✨ AI Stylist đề xuất set đồ hoàn chỉnh dành cho {gender}:\n"
-            f"• {top_item.get('slot_icon', '👔')} {top_item.get('slot', 'Áo')}: '{top_name}' ({top_item.get('baseColour', '')})\n"
-            f"• {bot_item.get('slot_icon', '👖')} {bot_item.get('slot', 'Quần')}: '{bot_name}' ({bot_item.get('baseColour', '')})\n"
-            f"• {shoe_item.get('slot_icon', '👞')} {shoe_item.get('slot', 'Giày')}: '{shoe_name}'\n"
-        )
-        if acc_item:
-            answer += f"• {acc_item.get('slot_icon', '👜')} {acc_item.get('slot', 'Phụ kiện')}: '{acc_name}'\n"
-        answer += f"\nSự kết hợp này tạo nên tổng thể hài hòa về tone màu, tôn dáng và cực kỳ phù hợp cho tiêu chí '{query}'."
+        outfit_lines = [f"✨ AI Stylist đề xuất set đồ hoàn chỉnh dành cho {gender}:\n"]
+        for it in outfit_items:
+            s_icon = it.get("slot_icon", "•")
+            s_slot = it.get("slot", "Món đồ")
+            p_name = it.get("productDisplayName", "")
+            p_col = it.get("baseColour", "")
+            outfit_lines.append(f"• {s_icon} {s_slot}: '{p_name}' ({p_col})")
+            
+        outfit_lines.append(f"\nSự kết hợp này tạo nên tổng thể hài hòa về tone màu, tôn dáng và cực kỳ phù hợp cho tiêu chí '{query}'.")
+        answer = "\n".join(outfit_lines)
 
         t_total = time.time() - t0
         ret_filters = {"gender": gender, "type": "outfit_recommendation"}
@@ -534,11 +526,15 @@ class RagEngine:
         top1_name = top1.get("productDisplayName", "sản phẩm tương đồng")
         top1_score = (top1.get("score", 0.0) * 100)
         
-        answer = (
+        lines = [
             f"Dựa trên hình ảnh bạn tải lên ({mode_desc}), hệ thống AI trích xuất đặc trưng thị giác qua CLIP ViT-B/32 "
-            f"và tìm thấy các sản phẩm có độ tương đồng cao nhất trong catalog. "
-            f"Nổi bật nhất là '{top1_name}' với độ tương đồng đạt {top1_score:.1f}%."
-        )
+            f"và tìm thấy các sản phẩm có độ tương đồng cao nhất trong catalog:\n"
+        ]
+        for p in top_products[:4]:
+            p_score = (p.get("score", 0.0) * 100)
+            lines.append(f"• {p.get('productDisplayName', '')} — Độ tương đồng: {p_score:.1f}%")
+        lines.append(f"\nNổi bật nhất là '{top1_name}' với độ tương đồng đạt {top1_score:.1f}%.")
+        answer = "\n".join(lines)
         
         t_total = time.time() - t0
         return {

@@ -305,9 +305,8 @@ async def send_message_stream(
         }
         yield f"data: {json.dumps(meta_event, ensure_ascii=False)}\n\n"
 
-        words = full_answer.split(" ")
-        for i, word in enumerate(words):
-            chunk = word + (" " if i < len(words) - 1 else "")
+        tokens = re.findall(r"\S+\s*|\n+", full_answer)
+        for chunk in tokens:
             yield f"data: {json.dumps({'type': 'token', 'token': chunk}, ensure_ascii=False)}\n\n"
             await asyncio.sleep(0.015)
 

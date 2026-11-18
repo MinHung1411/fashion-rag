@@ -309,7 +309,7 @@
                       <img :src="msg.image_url" class="w-full h-auto object-cover max-h-48" alt="Ảnh tải lên" />
                     </div>
                   </template>
-                  <p x-text="msg.content"></p>
+                  <p class="whitespace-pre-line" x-text="msg.content"></p>
                 </div>
               </div>
             </template>
@@ -325,8 +325,8 @@
                 </div>
 
                 <div class="flex-1 min-w-0 space-y-4">
-                  <!-- Main Answer Text (Comfortable 15-16px font) -->
-                  <div class="text-[15px] sm:text-base leading-relaxed text-zinc-100 font-normal" x-text="msg.content"></div>
+                  <!-- Main Answer Text (Comfortable 15-16px font with pre-line for clean line separation) -->
+                  <div class="text-[15px] sm:text-base leading-relaxed text-zinc-100 font-normal whitespace-pre-line" x-text="msg.content"></div>
 
                   <!-- Grounding & Latency Bar (Clean Minimalist Pills) -->
                   <div class="flex flex-wrap items-center gap-2 text-xs text-zinc-400 pt-1">
