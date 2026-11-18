@@ -26,6 +26,8 @@ document.addEventListener('alpine:init', () => {
     messages: [],
     inputQuery: '',
     searchConvQuery: '',
+    selectedImageFile: null,
+    selectedImagePreview: '',
     isGenerating: false,
     filterOptions: { genders: [], masterCategories: [] },
 
@@ -317,9 +319,28 @@ document.addEventListener('alpine:init', () => {
       this.sendMessage();
     },
 
+    handleImageSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      this.selectedImageFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.selectedImagePreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    removeSelectedImage() {
+      this.selectedImageFile = null;
+      this.selectedImagePreview = '';
+      const inputEl = document.querySelector('input[type="file"]');
+      if (inputEl) inputEl.value = '';
+    },
+
     async sendMessage() {
       const query = this.inputQuery.trim();
-      if (!query || this.isGenerating) return;
+      const hasImage = !!this.selectedImageFile;
+      if ((!query && !hasImage) || this.isGenerating) return;
 
       if (!this.token) {
         this.showAuthModal = true;
@@ -329,10 +350,11 @@ document.addEventListener('alpine:init', () => {
       // Ensure active conversation
       if (!this.activeConversationId) {
         try {
+          const convTitle = query ? (query.slice(0, 36) + (query.length > 36 ? '...' : '')) : 'Tìm kiếm hình ảnh';
           const createRes = await fetch('/api/conversations', {
             method: 'POST',
             headers: this.authHeaders,
-            body: JSON.stringify({ title: query.slice(0, 36) + (query.length > 36 ? '...' : '') })
+            body: JSON.stringify({ title: convTitle })
           });
           if (createRes.ok) {
             const newConv = await createRes.json();
@@ -350,16 +372,84 @@ document.addEventListener('alpine:init', () => {
         id: Date.now(),
         conversation_id: this.activeConversationId,
         sender: 'user',
-        content: query,
+        content: query || 'Tìm kiếm sản phẩm tương tự bằng hình ảnh',
+        image_url: this.selectedImagePreview || null,
         created_at: new Date().toISOString()
       };
       this.messages.push(tempUserMsg);
+
+      const capturedImageFile = this.selectedImageFile;
       this.inputQuery = '';
+      this.removeSelectedImage();
       this.isGenerating = true;
       this.$nextTick(() => this.scrollToBottom());
 
+      // If user uploaded an image -> Visual Search endpoint
+      if (hasImage && capturedImageFile) {
+        try {
+          const formData = new FormData();
+          formData.append('file', capturedImageFile);
+          if (query) formData.append('query', query);
+          formData.append('top_k', this.settings.top_k);
+          if (this.settings.gender_filter) formData.append('gender_filter', this.settings.gender_filter);
+          if (this.settings.category_filter) formData.append('category_filter', this.settings.category_filter);
+
+          const res = await fetch(`/api/conversations/${this.activeConversationId}/messages/image`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${this.token}` },
+            body: formData
+          });
+
+          if (res.ok) {
+            const asstMsg = await res.json();
+            this.messages.push(asstMsg);
+            const convIdx = this.conversations.findIndex(c => c.id === this.activeConversationId);
+            if (convIdx !== -1) this.conversations[convIdx].last_message = asstMsg.content;
+          } else {
+            const err = await res.json().catch(() => ({}));
+            this.messages.push({
+              id: Date.now() + 1,
+              conversation_id: this.activeConversationId,
+              sender: 'assistant',
+              content: `⚠️ Lỗi xử lý ảnh: ${err.detail || 'Không thể tìm kiếm ảnh lúc này'}`,
+              created_at: new Date().toISOString()
+            });
+          }
+        } catch (e) {
+          console.error('Visual search error:', e);
+          this.messages.push({
+            id: Date.now() + 1,
+            conversation_id: this.activeConversationId,
+            sender: 'assistant',
+            content: '⚠️ Có lỗi khi tải ảnh lên. Vui lòng thử lại.',
+            created_at: new Date().toISOString()
+          });
+        } finally {
+          this.isGenerating = false;
+          this.$nextTick(() => this.scrollToBottom());
+        }
+        return;
+      }
+
+      // Priority 2: Real-time Streaming Response (SSE)
+      const tempAsstId = Date.now() + 1;
+      const asstMsgObj = {
+        id: tempAsstId,
+        conversation_id: this.activeConversationId,
+        sender: 'assistant',
+        content: '',
+        retrieved_products: [],
+        grounding_status: 'none',
+        matched_terms: [],
+        latency: null,
+        is_outfit: false,
+        created_at: new Date().toISOString()
+      };
+      this.messages.push(asstMsgObj);
+      const asstRef = this.messages[this.messages.length - 1];
+
       try {
-        const res = await fetch(`/api/conversations/${this.activeConversationId}/messages`, {
+        const res = await fetch(`/api/conversations/${this.activeConversationId}/messages/stream`, {
           method: 'POST',
           headers: this.authHeaders,
           body: JSON.stringify({
@@ -370,39 +460,56 @@ document.addEventListener('alpine:init', () => {
           })
         });
 
-        if (res.ok) {
-          const asstMsg = await res.json();
-          this.messages.push(asstMsg);
-          
-          // Update conversation in sidebar list
-          const convIdx = this.conversations.findIndex(c => c.id === this.activeConversationId);
-          if (convIdx !== -1) {
-            this.conversations[convIdx].last_message = asstMsg.content;
-            if (this.conversations[convIdx].title === 'Cuộc trò chuyện mới') {
-              this.conversations[convIdx].title = query.slice(0, 36) + (query.length > 36 ? '...' : '');
-              this.activeConversationTitle = this.conversations[convIdx].title;
+        if (!res.ok) {
+          throw new Error('Không thể kết nối luồng trả lời.');
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(line.slice(6));
+                if (event.type === 'retrieved') {
+                  asstRef.retrieved_products = event.products || [];
+                  asstRef.grounding_status = event.grounding_status;
+                  asstRef.matched_terms = event.matched_terms || [];
+                  asstRef.latency = event.latency;
+                  asstRef.is_outfit = event.is_outfit || false;
+                  if (event.title) {
+                    this.activeConversationTitle = event.title;
+                    const convIdx = this.conversations.findIndex(c => c.id === this.activeConversationId);
+                    if (convIdx !== -1) this.conversations[convIdx].title = event.title;
+                  }
+                  this.$nextTick(() => this.scrollToBottom());
+                } else if (event.type === 'token') {
+                  asstRef.content += event.token;
+                  this.$nextTick(() => this.scrollToBottom());
+                } else if (event.type === 'done') {
+                  asstRef.id = event.message_id || asstRef.id;
+                  const convIdx = this.conversations.findIndex(c => c.id === this.activeConversationId);
+                  if (convIdx !== -1) this.conversations[convIdx].last_message = asstRef.content;
+                }
+              } catch (parseErr) {
+                // ignore keep reading
+              }
             }
           }
-        } else {
-          const err = await res.json().catch(() => ({}));
-          const errMsg = err.detail || 'Không thể xử lý câu hỏi lúc này. Vui lòng thử lại.';
-          this.messages.push({
-            id: Date.now(),
-            conversation_id: this.activeConversationId,
-            sender: 'assistant',
-            content: `⚠️ Lỗi: ${errMsg}`,
-            created_at: new Date().toISOString()
-          });
         }
-      } catch (e) {
-        console.error('Error sending message:', e);
-        this.messages.push({
-          id: Date.now(),
-          conversation_id: this.activeConversationId,
-          sender: 'assistant',
-          content: '⚠️ Có lỗi kết nối đến máy chủ. Vui lòng kiểm tra lại mạng hoặc thử lại.',
-          created_at: new Date().toISOString()
-        });
+      } catch (err) {
+        console.error('Streaming error, falling back:', err);
+        if (!asstRef.content) {
+          asstRef.content = '⚠️ Có lỗi xảy ra trong quá trình sinh câu trả lời. Vui lòng thử lại sau.';
+        }
       } finally {
         this.isGenerating = false;
         this.$nextTick(() => this.scrollToBottom());

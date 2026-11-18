@@ -1,6 +1,10 @@
 from datetime import datetime, timezone
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional, Dict, Any
+import json
+import asyncio
+import base64
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from ..core.database import get_db
@@ -225,10 +229,149 @@ def send_message_in_conversation(
         grounding_status=rag_result["grounding"]["status"],
         matched_terms=rag_result["grounding"]["matched_terms"],
         filters=rag_result["filters"],
-        latency=rag_result["latency"]
+        latency=rag_result["latency"],
+        is_outfit=rag_result.get("is_outfit", False)
     )
     db.add(asst_msg)
     
+    conv.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(asst_msg)
+
+    return MessageOut.model_validate(asst_msg)
+
+@router.post("/{conversation_id}/messages/stream")
+async def send_message_stream(
+    conversation_id: str,
+    msg_in: MessageCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    conv = (
+        db.query(Conversation)
+        .filter(Conversation.id == conversation_id, Conversation.user_id == current_user.id)
+        .first()
+    )
+    if not conv:
+        raise HTTPException(status_code=404, detail="Không tìm thấy cuộc trò chuyện này.")
+
+    user_msg = Message(
+        conversation_id=conv.id,
+        sender="user",
+        content=msg_in.content
+    )
+    db.add(user_msg)
+    db.commit()
+
+    if conv.title == "Cuộc trò chuyện mới":
+        conv.title = msg_in.content[:40] + ("..." if len(msg_in.content) > 40 else "")
+        db.commit()
+
+    rag_result = rag_engine.ask(
+        query=msg_in.content,
+        top_k=msg_in.top_k,
+        gender_filter=msg_in.gender_filter,
+        category_filter=msg_in.category_filter
+    )
+
+    full_answer = rag_result["answer"]
+    asst_msg = Message(
+        conversation_id=conv.id,
+        sender="assistant",
+        content=full_answer,
+        retrieved_products=rag_result["products"],
+        grounding_status=rag_result["grounding"]["status"],
+        matched_terms=rag_result["grounding"]["matched_terms"],
+        filters=rag_result["filters"],
+        latency=rag_result["latency"],
+        is_outfit=rag_result.get("is_outfit", False)
+    )
+    db.add(asst_msg)
+    conv.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(asst_msg)
+
+    async def event_generator():
+        meta_event = {
+            "type": "retrieved",
+            "message_id": asst_msg.id,
+            "products": rag_result["products"],
+            "grounding_status": rag_result["grounding"]["status"],
+            "matched_terms": rag_result["grounding"]["matched_terms"],
+            "latency": rag_result["latency"],
+            "is_outfit": rag_result.get("is_outfit", False),
+            "title": conv.title
+        }
+        yield f"data: {json.dumps(meta_event, ensure_ascii=False)}\n\n"
+
+        words = full_answer.split(" ")
+        for i, word in enumerate(words):
+            chunk = word + (" " if i < len(words) - 1 else "")
+            yield f"data: {json.dumps({'type': 'token', 'token': chunk}, ensure_ascii=False)}\n\n"
+            await asyncio.sleep(0.015)
+
+        yield f"data: {json.dumps({'type': 'done', 'message_id': asst_msg.id}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@router.post("/{conversation_id}/messages/image", response_model=MessageOut)
+async def send_image_message(
+    conversation_id: str,
+    file: UploadFile = File(...),
+    query: Optional[str] = Form(None),
+    top_k: int = Form(5),
+    gender_filter: Optional[str] = Form(None),
+    category_filter: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    conv = (
+        db.query(Conversation)
+        .filter(Conversation.id == conversation_id, Conversation.user_id == current_user.id)
+        .first()
+    )
+    if not conv:
+        raise HTTPException(status_code=404, detail="Không tìm thấy cuộc trò chuyện này.")
+
+    image_bytes = await file.read()
+    b64_str = base64.b64encode(image_bytes).decode('utf-8')
+    mime = file.content_type or "image/jpeg"
+    data_url = f"data:{mime};base64,{b64_str}"
+
+    user_text = query.strip() if query and query.strip() else "Tìm kiếm sản phẩm tương tự bằng hình ảnh"
+
+    user_msg = Message(
+        conversation_id=conv.id,
+        sender="user",
+        content=user_text,
+        image_url=data_url
+    )
+    db.add(user_msg)
+    db.commit()
+
+    if conv.title == "Cuộc trò chuyện mới":
+        conv.title = f"Ảnh: {user_text[:28]}"
+        db.commit()
+
+    rag_result = rag_engine.ask_with_image(
+        image_bytes=image_bytes,
+        text_query=query,
+        top_k=top_k,
+        gender_filter=gender_filter,
+        category_filter=category_filter
+    )
+
+    asst_msg = Message(
+        conversation_id=conv.id,
+        sender="assistant",
+        content=rag_result["answer"],
+        retrieved_products=rag_result["products"],
+        grounding_status=rag_result["grounding"]["status"],
+        matched_terms=rag_result["grounding"]["matched_terms"],
+        filters=rag_result["filters"],
+        latency=rag_result["latency"]
+    )
+    db.add(asst_msg)
     conv.updated_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(asst_msg)

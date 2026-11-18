@@ -12,10 +12,10 @@ router = APIRouter(prefix="/rag", tags=["RAG Engine"])
 
 CURATED_EXAMPLES = [
     {
-        "query": "What black formal shoes are available for men?",
-        "title": "Giày da nam công sở",
-        "category": "Nam • Giày dép",
-        "description": "Tìm kiếm các mẫu giày tây da màu đen thanh lịch cho nam giới"
+        "query": "Phối cho tôi một set đồ nam công sở lịch lãm",
+        "title": "Set đồ nam công sở",
+        "category": "AI Stylist • Mix & Match",
+        "description": "Tự động kết hợp áo sơ mi, quần âu, giày da và phụ kiện hoàn chỉnh"
     },
     {
         "query": "Do you have casual dresses for women in red?",
@@ -24,16 +24,16 @@ CURATED_EXAMPLES = [
         "description": "Gợi ý váy đầm dạo phố màu đỏ trẻ trung và hiện đại"
     },
     {
+        "query": "What black formal shoes are available for men?",
+        "title": "Giày da nam công sở",
+        "category": "Nam • Giày dép",
+        "description": "Tìm kiếm các mẫu giày tây da màu đen thanh lịch cho nam giới"
+    },
+    {
         "query": "Show me white sneakers for men",
         "title": "Sneakers trắng năng động",
         "category": "Nam • Sneaker",
         "description": "Tìm kiếm giày thể thao sneaker màu trắng phong cách tối giản"
-    },
-    {
-        "query": "What summer tops are available for women in white?",
-        "title": "Áo mùa hè nữ màu trắng",
-        "category": "Nữ • Áo mùa hè",
-        "description": "Khám phá các mẫu áo thun, áo kiểu nữ thoáng mát cho mùa hè"
     }
 ]
 

@@ -12,6 +12,8 @@ class Message(Base):
     content = Column(Text, nullable=False)
     
     # Multimodal RAG metadata
+    image_url = Column(Text, nullable=True)
+    is_outfit = Column(JSON, nullable=True, default=False)
     retrieved_products = Column(JSON, nullable=True, default=list)
     grounding_status = Column(String(30), nullable=True, default="none")
     matched_terms = Column(JSON, nullable=True, default=list)

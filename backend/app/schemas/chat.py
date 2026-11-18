@@ -21,6 +21,8 @@ class MessageOut(BaseModel):
     conversation_id: str
     sender: str
     content: str
+    image_url: Optional[str] = None
+    is_outfit: Optional[bool] = False
     retrieved_products: Optional[List[Dict[str, Any]]] = []
     grounding_status: Optional[str] = "none"
     matched_terms: Optional[List[str]] = []
