@@ -355,11 +355,25 @@ document.addEventListener('alpine:init', () => {
             }
           }
         } else {
-          const err = await res.json();
-          alert('Lỗi: ' + (err.detail || 'Không thể gửi câu hỏi'));
+          const err = await res.json().catch(() => ({}));
+          const errMsg = err.detail || 'Không thể xử lý câu hỏi lúc này. Vui lòng thử lại.';
+          this.messages.push({
+            id: Date.now(),
+            conversation_id: this.activeConversationId,
+            sender: 'assistant',
+            content: `⚠️ Lỗi: ${errMsg}`,
+            created_at: new Date().toISOString()
+          });
         }
       } catch (e) {
         console.error('Error sending message:', e);
+        this.messages.push({
+          id: Date.now(),
+          conversation_id: this.activeConversationId,
+          sender: 'assistant',
+          content: '⚠️ Có lỗi kết nối đến máy chủ. Vui lòng kiểm tra lại mạng hoặc thử lại.',
+          created_at: new Date().toISOString()
+        });
       } finally {
         this.isGenerating = false;
         this.$nextTick(() => this.scrollToBottom());
