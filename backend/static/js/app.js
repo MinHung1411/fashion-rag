@@ -170,7 +170,17 @@ document.addEventListener('alpine:init', () => {
 
     async quickDemoLogin() {
       try {
-        const res = await fetch('/api/auth/quick-demo', { method: 'POST' });
+        let guestId = localStorage.getItem('fashion_guest_id');
+        if (!guestId) {
+          guestId = 'guest_' + Math.random().toString(36).substring(2, 10);
+          localStorage.setItem('fashion_guest_id', guestId);
+        }
+
+        const res = await fetch('/api/auth/quick-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ guest_id: guestId })
+        });
         if (res.ok) {
           const data = await res.json();
           this.token = data.access_token;
@@ -203,7 +213,10 @@ document.addEventListener('alpine:init', () => {
         const res = await fetch('/api/conversations', { headers: this.authHeaders });
         if (res.ok) {
           this.conversations = await res.json();
-          // Fresh clean start! Do not auto-select old conversations on load.
+          // Fresh clean start! Always ensure activeConversationId is null on entry
+          this.activeConversationId = null;
+          this.activeConversationTitle = '';
+          this.messages = [];
         }
       } catch (e) {
         console.error('Error loading conversations:', e);
@@ -234,6 +247,22 @@ document.addEventListener('alpine:init', () => {
         const inputEl = document.querySelector('textarea');
         if (inputEl) inputEl.focus();
       });
+    },
+
+    async clearAllConversations() {
+      if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử trò chuyện không?')) return;
+      try {
+        const res = await fetch('/api/conversations', {
+          method: 'DELETE',
+          headers: this.authHeaders
+        });
+        if (res.ok) {
+          this.conversations = [];
+          this.createNewConversation();
+        }
+      } catch (e) {
+        console.error('Error clearing conversations:', e);
+      }
     },
 
     async deleteConversation(convId, event) {

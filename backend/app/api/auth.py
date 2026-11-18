@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional, Dict, Any
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from ..core.database import get_db
 from ..core.security import hash_password, verify_password, create_access_token
@@ -59,10 +61,38 @@ def login(login_in: UserLogin, db: Session = Depends(get_db)):
     return Token(access_token=token, user=UserOut.model_validate(user))
 
 @router.post("/quick-demo", response_model=Token)
-def quick_demo_login(db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.username == "demo").first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Tài khoản demo chưa được khởi tạo.")
+def quick_demo_login(payload: Optional[Dict[str, Any]] = Body(default=None), db: Session = Depends(get_db)):
+    guest_id = (payload or {}).get("guest_id")
+    if guest_id:
+        clean_guest = "guest_" + "".join(c for c in guest_id if c.isalnum())[:16]
+        user = db.query(User).filter(User.username == clean_guest).first()
+        if not user:
+            user = User(
+                username=clean_guest,
+                email=f"{clean_guest}@fashionrag.ai",
+                full_name="Khách trải nghiệm",
+                hashed_password=hash_password("guest123"),
+                avatar=f"https://api.dicebear.com/7.x/bottts/svg?seed={clean_guest}",
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+    else:
+        user = db.query(User).filter(User.username == "demo").first()
+        if not user:
+            user = User(
+                username="demo",
+                email="demo@fashionrag.ai",
+                full_name="Khách trải nghiệm",
+                hashed_password=hash_password("demo123"),
+                avatar="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+                is_active=True
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
     token = create_access_token(subject=user.id)
     return Token(access_token=token, user=UserOut.model_validate(user))
 

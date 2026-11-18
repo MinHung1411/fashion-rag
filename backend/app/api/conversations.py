@@ -150,6 +150,17 @@ def update_conversation(
         last_message=last_msg.content if last_msg else None
     )
 
+@router.delete("")
+def delete_all_conversations(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    convs = db.query(Conversation).filter(Conversation.user_id == current_user.id).all()
+    for c in convs:
+        db.delete(c)
+    db.commit()
+    return {"status": "success", "message": "Đã xóa toàn bộ lịch sử trò chuyện."}
+
 @router.delete("/{conversation_id}")
 def delete_conversation(
     conversation_id: str,
