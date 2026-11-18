@@ -203,55 +203,37 @@ document.addEventListener('alpine:init', () => {
         const res = await fetch('/api/conversations', { headers: this.authHeaders });
         if (res.ok) {
           this.conversations = await res.json();
-          if (this.conversations.length > 0 && !this.activeConversationId) {
-            await this.selectConversation(this.conversations[0].id);
-          }
+          // Fresh clean start! Do not auto-select old conversations on load.
         }
       } catch (e) {
         console.error('Error loading conversations:', e);
       }
     },
 
-    async selectConversation(convId) {
+    selectConversation(convId) {
       this.activeConversationId = convId;
       const conv = this.conversations.find(c => c.id === convId);
       if (conv) this.activeConversationTitle = conv.title;
 
-      try {
-        const res = await fetch(`/api/conversations/${convId}`, { headers: this.authHeaders });
-        if (res.ok) {
-          const data = await res.json();
+      fetch(`/api/conversations/${convId}`, { headers: this.authHeaders })
+        .then(res => res.json())
+        .then(data => {
           this.messages = data.messages || [];
           this.activeConversationTitle = data.title;
           this.$nextTick(() => this.scrollToBottom());
-        }
-      } catch (e) {
-        console.error('Error fetching conversation details:', e);
-      }
+        })
+        .catch(e => console.error('Error fetching conversation details:', e));
     },
 
-    async createNewConversation() {
-      if (!this.token) {
-        this.showAuthModal = true;
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/conversations', {
-          method: 'POST',
-          headers: this.authHeaders,
-          body: JSON.stringify({ title: 'Cuộc trò chuyện mới' })
-        });
-        if (res.ok) {
-          const newConv = await res.json();
-          this.conversations.unshift(newConv);
-          this.activeConversationId = newConv.id;
-          this.activeConversationTitle = newConv.title;
-          this.messages = [];
-        }
-      } catch (e) {
-        console.error('Error creating conversation:', e);
-      }
+    createNewConversation() {
+      this.activeConversationId = null;
+      this.activeConversationTitle = '';
+      this.messages = [];
+      this.inputQuery = '';
+      this.$nextTick(() => {
+        const inputEl = document.querySelector('textarea');
+        if (inputEl) inputEl.focus();
+      });
     },
 
     async deleteConversation(convId, event) {
@@ -317,7 +299,21 @@ document.addEventListener('alpine:init', () => {
 
       // Ensure active conversation
       if (!this.activeConversationId) {
-        await this.createNewConversation();
+        try {
+          const createRes = await fetch('/api/conversations', {
+            method: 'POST',
+            headers: this.authHeaders,
+            body: JSON.stringify({ title: query.slice(0, 36) + (query.length > 36 ? '...' : '') })
+          });
+          if (createRes.ok) {
+            const newConv = await createRes.json();
+            this.conversations.unshift(newConv);
+            this.activeConversationId = newConv.id;
+            this.activeConversationTitle = newConv.title;
+          }
+        } catch (e) {
+          console.error('Error creating conversation:', e);
+        }
       }
 
       // Optimistic user message
