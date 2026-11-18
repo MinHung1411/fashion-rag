@@ -13,33 +13,27 @@ router = APIRouter(prefix="/rag", tags=["RAG Engine"])
 CURATED_EXAMPLES = [
     {
         "query": "What black formal shoes are available for men?",
-        "category": "Men Footwear",
-        "icon": "👞",
-        "description": "Tìm kiếm giày da công sở màu đen thanh lịch cho nam"
+        "title": "Giày da nam công sở",
+        "category": "Nam • Giày dép",
+        "description": "Tìm kiếm các mẫu giày tây da màu đen thanh lịch cho nam giới"
     },
     {
         "query": "Do you have casual dresses for women in red?",
-        "category": "Women Dresses",
-        "icon": "👗",
-        "description": "Váy đầm dạo phố màu đỏ rực rỡ dành cho nữ"
+        "title": "Váy đầm casual nữ",
+        "category": "Nữ • Trang phục",
+        "description": "Gợi ý váy đầm dạo phố màu đỏ trẻ trung và hiện đại"
     },
     {
         "query": "Show me white sneakers for men",
-        "category": "Sneakers",
-        "icon": "👟",
-        "description": "Giày sneaker trắng thể thao năng động và trẻ trung"
+        "title": "Sneakers trắng năng động",
+        "category": "Nam • Sneaker",
+        "description": "Tìm kiếm giày thể thao sneaker màu trắng phong cách tối giản"
     },
     {
         "query": "What summer tops are available for women in white?",
-        "category": "Women Tops",
-        "icon": "👚",
-        "description": "Áo mùa hè màu trắng thoáng mát và thời trang cho nữ"
-    },
-    {
-        "query": "Something that does not exist like a flying carpet",
-        "category": "Out of domain test",
-        "icon": "✨",
-        "description": "Kiểm tra cơ chế từ chối (rejection threshold) với truy vấn không hợp lệ"
+        "title": "Áo mùa hè nữ màu trắng",
+        "category": "Nữ • Áo mùa hè",
+        "description": "Khám phá các mẫu áo thun, áo kiểu nữ thoáng mát cho mùa hè"
     }
 ]
 

@@ -14,12 +14,13 @@
         extend: {
           colors: {
             brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
+              50: '#f4f4f5',
+              100: '#e4e4e7',
+              200: '#d4d4d8',
+              500: '#71717a',
+              700: '#3f3f46',
+              900: '#18181b',
+              950: '#09090b',
             }
           }
         }
@@ -27,157 +28,165 @@
     }
   </script>
 
-  <!-- Lucide Icons & Alpine.js -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Alpine.js -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/static/css/style.css" />
 </head>
-<body x-data="fashionApp" :class="isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-800'" class="h-screen flex overflow-hidden">
+<body x-data="fashionApp" :class="isDarkMode ? 'dark bg-[#212121] text-zinc-100' : 'bg-white text-zinc-900'" class="h-screen flex overflow-hidden antialiased">
 
   <!-- ========================================================================= -->
-  <!-- LEFT SIDEBAR: CONVERSATIONS & USER PROFILE -->
+  <!-- LEFT SIDEBAR: CONVERSATION HISTORY & USER PROFILE (CHATGPT STYLE) -->
   <!-- ========================================================================= -->
   <aside 
-    class="w-80 flex-shrink-0 flex flex-col border-r transition-all duration-300 z-30"
+    class="w-64 sm:w-72 flex-shrink-0 flex flex-col border-r transition-all duration-200 z-30 select-none"
     :class="[
-      isDarkMode ? 'bg-slate-900/95 border-slate-800' : 'bg-white border-slate-200',
+      isDarkMode ? 'bg-[#171717] border-zinc-800/80 text-zinc-300' : 'bg-zinc-50 border-zinc-200 text-zinc-700',
       sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
     ]"
   >
-    <!-- Brand Header -->
-    <div class="p-4 border-b flex items-center justify-between" :class="isDarkMode ? 'border-slate-800/80' : 'border-slate-100'">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-white font-bold text-lg">
-          🛍️
+    <!-- Sidebar Header: Brand & New Chat -->
+    <div class="p-3.5 border-b" :class="isDarkMode ? 'border-zinc-800/60' : 'border-zinc-200/80'">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center gap-2.5">
+          <!-- Minimalist Geometric Fashion AI Logo -->
+          <div class="w-7 h-7 rounded-lg bg-zinc-800 text-zinc-200 border border-zinc-700 flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-semibold text-xs tracking-tight flex items-center gap-1.5 text-zinc-100 dark:text-zinc-100">
+              Fashion RAG
+              <span class="text-[10px] font-mono px-1 py-0.2 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">v2.0</span>
+            </h1>
+          </div>
         </div>
-        <div>
-          <h1 class="font-bold text-base tracking-tight flex items-center gap-1.5">
-            Fashion RAG
-            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">v2.0</span>
-          </h1>
-          <p class="text-xs text-slate-400">Multimodal Q&amp;A System</p>
-        </div>
-      </div>
-      <!-- Theme toggle -->
-      <button @click="toggleTheme()" class="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
-        <span x-show="isDarkMode">☀️</span>
-        <span x-show="!isDarkMode">🌙</span>
-      </button>
-    </div>
 
-    <!-- New Chat Button -->
-    <div class="p-3">
+        <!-- Theme toggle -->
+        <button 
+          @click="toggleTheme()" 
+          class="p-1.5 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition"
+          title="Chuyển đổi sáng/tối"
+        >
+          <!-- Sun Icon -->
+          <svg x-show="isDarkMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <!-- Moon Icon -->
+          <svg x-show="!isDarkMode" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+      </div>
+
+      <!-- New Chat Button (ChatGPT style) -->
       <button 
         @click="createNewConversation()"
-        class="w-full py-2.5 px-4 rounded-xl font-medium text-sm text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-md shadow-indigo-600/20 flex items-center justify-between group transition active:scale-[0.98]"
+        class="w-full py-2 px-3 rounded-lg text-xs font-medium border flex items-center justify-between transition active:scale-[0.99]"
+        :class="isDarkMode ? 'bg-zinc-800/80 border-zinc-700/80 text-zinc-200 hover:bg-zinc-700 hover:border-zinc-600' : 'bg-white border-zinc-300 text-zinc-800 hover:bg-zinc-100'"
       >
         <span class="flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-          Cuộc trò chuyện mới
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          Đoạn chat mới
         </span>
-        <kbd class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded text-white/90 font-mono">Ctrl+K</kbd>
+        <kbd class="text-[10px] font-mono opacity-60">Ctrl+K</kbd>
       </button>
     </div>
 
-    <!-- Search Conversations -->
-    <div class="px-3 pb-2">
+    <!-- Search input -->
+    <div class="px-3 pt-2.5 pb-1">
       <div class="relative">
         <input 
           type="text" 
           x-model="searchConvQuery" 
-          placeholder="Tìm lịch sử hỏi đáp..." 
-          class="w-full text-xs py-2 pl-8 pr-3 rounded-lg border outline-none transition"
-          :class="isDarkMode ? 'bg-slate-800/60 border-slate-700/60 text-slate-200 placeholder-slate-500 focus:border-indigo-500' : 'bg-slate-100 border-slate-200 text-slate-700 placeholder-slate-400 focus:border-indigo-500'"
+          placeholder="Tìm lịch sử hội thoại..." 
+          class="w-full text-xs py-1.5 pl-7 pr-3 rounded-md border outline-none transition"
+          :class="isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-200 placeholder-zinc-500 focus:border-zinc-600' : 'bg-zinc-100 border-zinc-200 text-zinc-800 placeholder-zinc-400 focus:border-zinc-400'"
         />
-        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z"></path></svg>
+        <svg class="w-3 h-3 absolute left-2 top-2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 1114 0z"></path></svg>
       </div>
     </div>
 
-    <!-- Conversation List -->
-    <div class="flex-1 overflow-y-auto px-2 space-y-1">
+    <!-- Conversation Sessions List -->
+    <div class="flex-1 overflow-y-auto px-2 py-1.5 space-y-0.5">
       <template x-for="conv in filteredConversations" :key="conv.id">
         <div 
           @click="selectConversation(conv.id)"
-          class="group relative flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs transition"
+          class="group relative flex items-center justify-between px-2.5 py-2 rounded-lg cursor-pointer text-xs transition"
           :class="[
             activeConversationId === conv.id
-              ? (isDarkMode ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/30' : 'bg-indigo-50 text-indigo-700 font-semibold border border-indigo-200')
-              : (isDarkMode ? 'text-slate-300 hover:bg-slate-800/50' : 'text-slate-600 hover:bg-slate-100')
+              ? (isDarkMode ? 'bg-zinc-800 text-zinc-100 font-medium' : 'bg-zinc-200/80 text-zinc-900 font-medium')
+              : (isDarkMode ? 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900')
           ]"
         >
-          <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <span class="text-sm">💬</span>
-            <div class="truncate">
-              <p class="truncate" x-text="conv.title"></p>
-              <p class="text-[10px] text-slate-400 truncate" x-text="conv.last_message || 'Chưa có tin nhắn'"></p>
-            </div>
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <svg class="w-3.5 h-3.5 flex-shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            <span class="truncate" x-text="conv.title"></span>
           </div>
 
-          <!-- Actions: Rename & Delete -->
-          <div class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+          <!-- Rename & Delete (hover only) -->
+          <div class="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity">
             <button 
               @click.stop="renameConversation(conv.id)" 
-              class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-700/50" 
+              class="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700/60" 
               title="Đổi tên"
             >
-              ✏️
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
             </button>
             <button 
               @click.stop="deleteConversation(conv.id, $event)" 
-              class="p-1 rounded text-slate-400 hover:text-red-400 hover:bg-slate-700/50" 
+              class="p-1 rounded text-zinc-400 hover:text-red-400 hover:bg-zinc-700/60" 
               title="Xóa"
             >
-              🗑️
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
           </div>
         </div>
       </template>
 
-      <div x-show="filteredConversations.length === 0" class="text-center py-8 text-xs text-slate-500">
+      <div x-show="filteredConversations.length === 0" class="text-center py-6 text-xs text-zinc-500">
         Chưa có cuộc trò chuyện nào
       </div>
     </div>
 
-    <!-- System Status & Model Card -->
-    <div class="p-3 border-t text-[11px]" :class="isDarkMode ? 'border-slate-800 bg-slate-900/60' : 'border-slate-100 bg-slate-50'">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-slate-400 font-medium">Catalog FAISS</span>
-        <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono font-semibold">44,072 sản phẩm</span>
-      </div>
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-slate-400 font-medium">Thiết bị suy luận</span>
-        <span class="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono" x-text="systemStats.device"></span>
+    <!-- Status & Docs Indicator -->
+    <div class="px-3 py-2 border-t text-[11px]" :class="isDarkMode ? 'border-zinc-800/60' : 'border-zinc-200/80'">
+      <div class="flex items-center justify-between text-zinc-400">
+        <span class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+          Catalog FAISS
+        </span>
+        <span class="font-mono text-zinc-300">44,072 items</span>
       </div>
       <button 
         @click="showArchitectureModal = true"
-        class="w-full text-center py-1.5 text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center justify-center gap-1"
+        class="w-full text-left mt-1.5 text-zinc-400 hover:text-zinc-200 transition flex items-center justify-between"
       >
-        <span>📑</span> Báo cáo khoa học &amp; Kiến trúc RAG
+        <span>Báo cáo nghiên cứu khoa học</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
       </button>
     </div>
 
     <!-- User Profile Footer -->
-    <div class="p-3 border-t flex items-center justify-between" :class="isDarkMode ? 'border-slate-800/80 bg-slate-950/40' : 'border-slate-100 bg-white'">
+    <div class="p-3 border-t flex items-center justify-between" :class="isDarkMode ? 'border-zinc-800/80 bg-zinc-950/60' : 'border-zinc-200 bg-white'">
       <template x-if="currentUser">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <img :src="currentUser.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + currentUser.username" class="w-8 h-8 rounded-full border border-indigo-500/30 object-cover" />
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs text-zinc-200 font-semibold flex-shrink-0">
+            <span x-text="(currentUser.full_name || currentUser.username).charAt(0).toUpperCase()"></span>
+          </div>
           <div class="truncate">
-            <p class="text-xs font-semibold truncate" x-text="currentUser.full_name || currentUser.username"></p>
-            <p class="text-[10px] text-slate-400 truncate" x-text="'@' + currentUser.username"></p>
+            <p class="text-xs font-medium text-zinc-200 truncate leading-tight" x-text="currentUser.full_name || currentUser.username"></p>
+            <p class="text-[10px] text-zinc-500 truncate" x-text="'@' + currentUser.username"></p>
           </div>
         </div>
       </template>
 
       <div class="flex items-center gap-1">
         <template x-if="currentUser">
-          <button @click="logout()" class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-800/50 transition" title="Đăng xuất">
-            🚪
+          <button @click="logout()" class="p-1.5 rounded text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition" title="Đăng xuất">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </button>
         </template>
         <template x-if="!currentUser">
-          <button @click="showAuthModal = true" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition">
+          <button @click="showAuthModal = true" class="px-2.5 py-1 text-xs font-medium rounded bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700 transition">
             Đăng nhập
           </button>
         </template>
@@ -188,214 +197,176 @@
   <!-- ========================================================================= -->
   <!-- MAIN WORKSPACE -->
   <!-- ========================================================================= -->
-  <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+  <main class="flex-1 flex flex-col h-full overflow-hidden relative" :class="isDarkMode ? 'bg-[#212121]' : 'bg-white'">
     
-    <!-- Top Navigation Bar -->
-    <header class="h-16 border-b flex items-center justify-between px-6 flex-shrink-0 z-20 backdrop-blur-md" :class="isDarkMode ? 'bg-slate-950/80 border-slate-800/80' : 'bg-white/80 border-slate-200'">
-      <div class="flex items-center gap-3">
-        <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 text-slate-400 hover:text-slate-200">
-          ☰
+    <!-- Top Minimalist Bar -->
+    <header class="h-12 border-b flex items-center justify-between px-4 sm:px-6 flex-shrink-0 z-20" :class="isDarkMode ? 'bg-[#212121]/90 border-zinc-800/80 text-zinc-200' : 'bg-white/90 border-zinc-200 text-zinc-800'">
+      <div class="flex items-center gap-2 min-w-0">
+        <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-1.5 text-zinc-400 hover:text-zinc-200">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
-        <div>
-          <h2 class="text-sm font-semibold truncate max-w-md flex items-center gap-2" x-text="activeConversationTitle || 'Multimodal Fashion RAG Assistant'"></h2>
-          <p class="text-[11px] text-slate-400">CLIP ViT-B/32 + FAISS + Fine-tuned Flan-T5</p>
-        </div>
+        <h2 class="text-xs sm:text-sm font-medium truncate" x-text="activeConversationTitle || 'Fashion RAG Assistant'"></h2>
       </div>
 
-      <!-- Toolbar Actions -->
-      <div class="flex items-center gap-2">
-        <!-- Tuning button -->
+      <!-- Action Buttons (Minimalist SVG icons) -->
+      <div class="flex items-center gap-1.5">
         <button 
           @click="showSettingsModal = true" 
-          class="px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition"
-          :class="isDarkMode ? 'border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-300' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'"
+          class="px-2.5 py-1 rounded-md text-xs font-medium border flex items-center gap-1.5 transition"
+          :class="isDarkMode ? 'border-zinc-800 bg-zinc-850 hover:bg-zinc-800 text-zinc-300' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700'"
+          title="Tuỳ chọn tìm kiếm & Top-K"
         >
-          <span>⚙️</span> Tuỳ chọn lọc
-          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+          <span class="hidden sm:inline">Tuỳ chọn lọc</span>
         </button>
 
-        <!-- Export button -->
         <button 
           @click="exportConversation('markdown')" 
-          class="px-3 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 transition"
-          :class="isDarkMode ? 'border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-300' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'"
-          title="Xuất hội thoại ra Markdown"
+          class="px-2.5 py-1 rounded-md text-xs font-medium border flex items-center gap-1.5 transition"
+          :class="isDarkMode ? 'border-zinc-800 bg-zinc-850 hover:bg-zinc-800 text-zinc-300' : 'border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-700'"
+          title="Xuất hội thoại"
         >
-          <span>📥</span> Xuất chat
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span class="hidden sm:inline">Xuất chat</span>
         </button>
       </div>
     </header>
 
     <!-- Center Chat Scroll Container -->
-    <div id="chat-scroll-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+    <div id="chat-scroll-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
       
-      <!-- HERO / WELCOME STATE (when conversation has no messages) -->
-      <div x-show="messages.length === 0" class="max-w-3xl mx-auto py-8 text-center">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-6">
-          <span>✨</span> Trí tuệ nhân tạo Đa phương thức Thời trang
+      <!-- HERO / WELCOME STATE (ChatGPT CLEAN MINIMALIST STYLE) -->
+      <div x-show="messages.length === 0" class="max-w-2xl mx-auto py-12 text-center">
+        <!-- Minimalist Logo -->
+        <div class="w-12 h-12 rounded-2xl bg-zinc-800 text-zinc-200 border border-zinc-700/80 flex items-center justify-center mx-auto mb-4 shadow-sm">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+          </svg>
         </div>
         
-        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
-          <span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">
-            Fashion RAG Assistant
-          </span>
+        <h2 class="text-xl sm:text-2xl font-semibold tracking-tight mb-2 text-zinc-100 dark:text-zinc-100">
+          Hôm nay tôi có thể tư vấn thời trang gì cho bạn?
         </h2>
-        <p class="text-sm md:text-base text-slate-400 max-w-xl mx-auto mb-8">
-          Truy xuất hình ảnh &amp; thông tin sản phẩm thời trang trong tích tắc bằng ngôn ngữ tự nhiên. Sinh câu trả lời có dẫn chứng trực quan từ kho dữ liệu hơn 44,000 sản phẩm.
+        <p class="text-xs sm:text-sm text-zinc-400 max-w-lg mx-auto mb-8">
+          Tìm kiếm trong catalog 44,000+ sản phẩm thời trang bằng ngôn ngữ tự nhiên, được dẫn chứng trực quan bởi CLIP ViT-B/32 và Flan-T5.
         </p>
 
-        <!-- Research Metrics Showcase -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mb-10">
-          <div class="p-3 rounded-xl border text-center" :class="isDarkMode ? 'bg-slate-900/50 border-slate-800/80' : 'bg-white border-slate-200'">
-            <p class="text-xs text-slate-400">ROUGE-1</p>
-            <p class="text-lg font-bold text-indigo-400 font-mono">0.4950</p>
-          </div>
-          <div class="p-3 rounded-xl border text-center" :class="isDarkMode ? 'bg-slate-900/50 border-slate-800/80' : 'bg-white border-slate-200'">
-            <p class="text-xs text-slate-400">BERTScore-F1</p>
-            <p class="text-lg font-bold text-violet-400 font-mono">0.9186</p>
-          </div>
-          <div class="p-3 rounded-xl border text-center" :class="isDarkMode ? 'bg-slate-900/50 border-slate-800/80' : 'bg-white border-slate-200'">
-            <p class="text-xs text-slate-400">Grounding Rate</p>
-            <p class="text-lg font-bold text-emerald-400 font-mono">1.0000</p>
-          </div>
-          <div class="p-3 rounded-xl border text-center" :class="isDarkMode ? 'bg-slate-900/50 border-slate-800/80' : 'bg-white border-slate-200'">
-            <p class="text-xs text-slate-400">Composite Score</p>
-            <p class="text-lg font-bold text-pink-400 font-mono">0.7907</p>
-          </div>
-        </div>
-
-        <!-- Curated Example Queries -->
-        <div class="text-left max-w-2xl mx-auto">
-          <p class="text-xs font-semibold text-slate-400 mb-3 flex items-center gap-1.5">
-            <span>💡</span> Gợi ý câu hỏi thử nghiệm:
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <template x-for="(ex, i) in examples" :key="i">
-              <button 
-                @click="useExample(ex.query)"
-                class="p-3 rounded-xl border text-left transition group active:scale-[0.99] flex items-start gap-3"
-                :class="isDarkMode ? 'bg-slate-900/40 border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900/80' : 'bg-white border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50'"
-              >
-                <span class="text-xl group-hover:scale-110 transition-transform" x-text="ex.icon"></span>
-                <div class="flex-1 min-w-0">
-                  <p class="text-xs font-medium text-indigo-400 group-hover:text-indigo-300" x-text="ex.category"></p>
-                  <p class="text-xs font-semibold truncate text-slate-200" x-text="ex.query"></p>
-                  <p class="text-[10px] text-slate-400 truncate mt-0.5" x-text="ex.description"></p>
-                </div>
-              </button>
-            </template>
-          </div>
+        <!-- Professional Prompt Suggestion Cards (ChatGPT 2x2 Grid) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+          <template x-for="(ex, i) in examples" :key="i">
+            <button 
+              @click="useExample(ex.query)"
+              class="prompt-card p-3.5 rounded-xl border text-left transition group active:scale-[0.99] flex flex-col justify-between"
+              :class="isDarkMode ? 'bg-zinc-900/70 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/80' : 'bg-white border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 shadow-sm'"
+            >
+              <div>
+                <p class="text-[11px] font-medium text-zinc-400 mb-1" x-text="ex.category"></p>
+                <p class="text-xs font-semibold text-zinc-200 group-hover:text-white" x-text="ex.title || ex.query"></p>
+              </div>
+              <div class="mt-2.5 flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-400">
+                <span class="truncate pr-2" x-text="ex.description"></span>
+                <svg class="w-3 h-3 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </div>
+            </button>
+          </template>
         </div>
       </div>
 
       <!-- MESSAGES FEED -->
-      <div class="max-w-4xl mx-auto space-y-6">
+      <div class="max-w-3xl mx-auto space-y-6">
         <template x-for="msg in messages" :key="msg.id">
           <div class="space-y-3">
             
             <!-- USER MESSAGE BUBBLE -->
             <template x-if="msg.sender === 'user'">
-              <div class="flex justify-end items-start gap-3">
-                <div class="max-w-xl py-3 px-4 rounded-2xl rounded-tr-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-600/10">
-                  <p class="text-sm font-medium leading-relaxed" x-text="msg.content"></p>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs text-slate-300 font-bold flex-shrink-0">
-                  👤
+              <div class="flex justify-end items-start gap-2.5">
+                <div 
+                  class="max-w-xl py-2.5 px-4 rounded-2xl rounded-tr-sm text-xs sm:text-sm leading-relaxed"
+                  :class="isDarkMode ? 'bg-zinc-800 text-zinc-100' : 'bg-zinc-200 text-zinc-900'"
+                >
+                  <p x-text="msg.content"></p>
                 </div>
               </div>
             </template>
 
-            <!-- ASSISTANT MESSAGE CARD -->
+            <!-- ASSISTANT MESSAGE CARD (CLEAN CHATGPT STYLE) -->
             <template x-if="msg.sender === 'assistant'">
-              <div class="flex items-start gap-3.5">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 flex-shrink-0 text-sm">
-                  🛍️
+              <div class="flex items-start gap-3">
+                <!-- Clean AI Badge -->
+                <div class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-300 flex-shrink-0">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+                  </svg>
                 </div>
 
                 <div class="flex-1 min-w-0 space-y-3">
-                  <!-- Main Answer Card -->
-                  <div class="p-4 rounded-2xl border transition" :class="isDarkMode ? 'bg-slate-900/70 border-slate-800' : 'bg-white border-slate-200'">
-                    <p class="text-sm leading-relaxed" :class="isDarkMode ? 'text-slate-200' : 'text-slate-800'" x-text="msg.content"></p>
+                  <!-- Main Answer Text -->
+                  <div class="text-xs sm:text-sm leading-relaxed text-zinc-200 dark:text-zinc-200" x-text="msg.content"></div>
 
-                    <!-- Grounding & Latency Bar -->
-                    <div class="mt-3 pt-3 border-t flex flex-wrap items-center justify-between gap-2 text-xs" :class="isDarkMode ? 'border-slate-800/80 text-slate-400' : 'border-slate-100 text-slate-500'">
-                      
-                      <!-- Grounding Badge -->
-                      <div class="flex items-center gap-1.5">
-                        <template x-if="msg.grounding_status === 'grounded'">
-                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-medium text-[11px] border border-emerald-500/20">
-                            <span>✅</span> Grounded (Có dẫn chứng)
-                          </span>
-                        </template>
-                        <template x-if="msg.grounding_status === 'rejected'">
-                          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-medium text-[11px] border border-amber-500/20">
-                            <span>⚠️</span> Ngoài phạm vi Catalog
-                          </span>
-                        </template>
-                        
-                        <!-- Matched Terms Chips -->
-                        <div class="hidden sm:flex items-center gap-1">
-                          <template x-for="term in (msg.matched_terms || []).slice(0, 4)" :key="term">
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono" x-text="'#' + term"></span>
-                          </template>
-                        </div>
-                      </div>
+                  <!-- Grounding & Latency Bar (Clean Minimalist Pills) -->
+                  <div class="flex flex-wrap items-center gap-2 text-[11px] text-zinc-400 pt-1">
+                    <!-- Grounding status pill -->
+                    <template x-if="msg.grounding_status === 'grounded'">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-medium text-[10px] border border-emerald-500/20">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Grounded
+                      </span>
+                    </template>
+                    <template x-if="msg.grounding_status === 'rejected'">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-medium text-[10px] border border-amber-500/20">
+                        Ngoài catalog
+                      </span>
+                    </template>
 
-                      <!-- Latency breakdown -->
-                      <template x-if="msg.latency">
-                        <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-                          <span>🔍 <span x-text="msg.latency.retrieval_ms"></span>ms</span>
-                          <span>⚡ <span x-text="msg.latency.generation_ms"></span>ms</span>
-                          <span class="font-bold text-indigo-400">∑ <span x-text="msg.latency.total_ms"></span>ms</span>
-                        </div>
-                      </template>
-                    </div>
+                    <!-- Matched terms -->
+                    <template x-for="term in (msg.matched_terms || []).slice(0, 3)" :key="term">
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono" x-text="'#' + term"></span>
+                    </template>
+
+                    <!-- Latency -->
+                    <template x-if="msg.latency">
+                      <span class="inline-flex items-center gap-1 font-mono text-[10px] text-zinc-500 ml-auto">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span x-text="msg.latency.total_ms"></span>ms
+                      </span>
+                    </template>
                   </div>
 
-                  <!-- RETRIEVED PRODUCTS CAROUSEL / GRID -->
+                  <!-- RETRIEVED PRODUCTS CARDS (CLEAN E-COMMERCE CARDS) -->
                   <template x-if="msg.retrieved_products && msg.retrieved_products.length > 0">
-                    <div class="space-y-2">
-                      <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
-                        <span class="flex items-center gap-1">
-                          <span>🎯</span> Sản phẩm liên quan được truy xuất (Top <span x-text="msg.retrieved_products.length"></span>)
-                        </span>
-                        <span class="text-[11px] text-indigo-400">Nhấp để phóng to &amp; xem chi tiết</span>
-                      </div>
-
-                      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    <div class="mt-3 space-y-2">
+                      <p class="text-[11px] font-medium text-zinc-400">Sản phẩm gợi ý từ catalog:</p>
+                      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                         <template x-for="prod in msg.retrieved_products" :key="prod.id">
                           <div 
                             @click="openProductModal(prod)"
-                            class="product-card rounded-xl border overflow-hidden cursor-pointer flex flex-col group"
-                            :class="isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-indigo-500/60' : 'bg-white border-slate-200 hover:border-indigo-400 shadow-sm'"
+                            class="product-card rounded-xl border overflow-hidden cursor-pointer flex flex-col group transition"
+                            :class="isDarkMode ? 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700' : 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm'"
                           >
                             <!-- Product Image -->
-                            <div class="relative w-full aspect-[3/4] bg-slate-800 overflow-hidden">
+                            <div class="relative w-full aspect-[3/4] bg-zinc-950 overflow-hidden">
                               <img 
                                 :src="'/api/products/' + prod.id + '/image'" 
                                 :alt="prod.productDisplayName"
                                 loading="lazy"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                               />
-                              <!-- Similarity Score Badge -->
-                              <div class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-slate-950/80 backdrop-blur text-[10px] font-mono font-bold text-indigo-300 border border-indigo-500/30">
-                                <span x-text="(prod.score * 100).toFixed(1) + '%'"></span>
+                              <!-- Similarity Badge -->
+                              <div class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 backdrop-blur text-[9px] font-mono text-zinc-300 border border-white/10">
+                                <span x-text="(prod.score * 100).toFixed(0) + '% match'"></span>
                               </div>
                             </div>
 
                             <!-- Product Info -->
-                            <div class="p-2.5 flex-1 flex flex-col justify-between">
+                            <div class="p-2 flex-1 flex flex-col justify-between">
                               <div>
-                                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold truncate" x-text="prod.masterCategory + ' • ' + prod.subCategory"></p>
-                                <h4 class="text-xs font-semibold line-clamp-2 mt-0.5 group-hover:text-indigo-400 transition" x-text="prod.productDisplayName"></h4>
+                                <p class="text-[9px] text-zinc-500 uppercase tracking-wider truncate" x-text="prod.masterCategory + ' • ' + prod.subCategory"></p>
+                                <h4 class="text-[11px] font-medium line-clamp-2 mt-0.5 text-zinc-200 group-hover:text-white transition" x-text="prod.productDisplayName"></h4>
                               </div>
 
-                              <div class="mt-2 pt-2 border-t flex items-center justify-between text-[10px] text-slate-400" :class="isDarkMode ? 'border-slate-800/80' : 'border-slate-100'">
-                                <span class="flex items-center gap-1 truncate">
-                                  <span class="w-2 h-2 rounded-full inline-block" :style="'background-color:' + (prod.baseColour || 'gray').toLowerCase()"></span>
-                                  <span x-text="prod.baseColour"></span>
-                                </span>
-                                <span class="font-medium" x-text="prod.gender"></span>
+                              <div class="mt-2 pt-1.5 border-t flex items-center justify-between text-[10px] text-zinc-500" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-100'">
+                                <span class="truncate" x-text="prod.baseColour"></span>
+                                <span x-text="prod.gender"></span>
                               </div>
                             </div>
                           </div>
@@ -412,44 +383,43 @@
         </template>
 
         <!-- GENERATING SKELETON -->
-        <div x-show="isGenerating" class="flex items-start gap-3.5 animate-pulse">
-          <div class="w-9 h-9 rounded-xl bg-indigo-600/30 flex items-center justify-center text-white text-sm">
-            🛍️
+        <div x-show="isGenerating" class="flex items-start gap-3 animate-pulse">
+          <div class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400">
+            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           </div>
           <div class="flex-1 space-y-2">
-            <div class="p-4 rounded-2xl border skeleton-shimmer h-24" :class="isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'"></div>
-            <p class="text-xs text-indigo-400 font-medium">Đang truy xuất CLIP &amp; sinh câu trả lời RAG...</p>
+            <div class="p-3.5 rounded-xl border skeleton-shimmer h-16" :class="isDarkMode ? 'bg-zinc-900 border-zinc-800' : 'bg-zinc-100 border-zinc-200'"></div>
+            <p class="text-xs text-zinc-500">Đang truy xuất sản phẩm và sinh câu trả lời...</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Input Area -->
-    <div class="p-4 md:px-8 border-t flex-shrink-0 backdrop-blur-md" :class="isDarkMode ? 'bg-slate-950/80 border-slate-800/80' : 'bg-white/80 border-slate-200'">
-      <div class="max-w-4xl mx-auto">
-        <form @submit.prevent="sendMessage()" class="relative flex items-center">
+    <!-- Bottom Input Area (ChatGPT Floating Bar Style) -->
+    <div class="p-4 sm:px-6 flex-shrink-0" :class="isDarkMode ? 'bg-[#212121]' : 'bg-white'">
+      <div class="max-w-3xl mx-auto">
+        <form @submit.prevent="sendMessage()" class="relative flex items-center rounded-2xl border transition shadow-sm" :class="isDarkMode ? 'bg-zinc-900/90 border-zinc-700/80 focus-within:border-zinc-500' : 'bg-zinc-50 border-zinc-300 focus-within:border-zinc-400'">
           <textarea
             x-model="inputQuery"
             @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
             rows="1"
-            placeholder="Hỏi về bất kỳ sản phẩm thời trang nào (vd: Show me black formal shoes for men)..."
-            class="w-full py-3.5 pl-4 pr-24 rounded-2xl border outline-none text-sm resize-none transition shadow-sm"
-            :class="isDarkMode ? 'bg-slate-900/90 border-slate-700/80 text-slate-100 placeholder-slate-500 focus:border-indigo-500' : 'bg-slate-50 border-slate-300 text-slate-800 placeholder-slate-400 focus:border-indigo-500'"
+            placeholder="Hỏi về sản phẩm thời trang (ví dụ: Show me black formal shoes for men)..."
+            class="w-full py-3 pl-4 pr-12 bg-transparent outline-none text-xs sm:text-sm resize-none"
+            :class="isDarkMode ? 'text-zinc-100 placeholder-zinc-500' : 'text-zinc-800 placeholder-zinc-400'"
           ></textarea>
 
           <button
             type="submit"
             :disabled="!inputQuery.trim() || isGenerating"
-            class="absolute right-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-1.5 shadow-md shadow-indigo-600/20 active:scale-95"
+            class="absolute right-2.5 p-1.5 rounded-xl text-zinc-900 bg-white hover:bg-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center active:scale-95"
+            title="Gửi câu hỏi"
           >
-            <span x-show="!isGenerating">Gửi</span>
-            <span x-show="isGenerating">⏳</span>
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
           </button>
         </form>
 
-        <p class="text-[11px] text-center text-slate-500 mt-2">
-          Fashion RAG Multimodal AI • Mô hình CLIP ViT-B/32 + FAISS + Flan-T5 Fine-tuned • Tác giả: Hồ Minh Hưng
+        <p class="text-[10px] text-center text-zinc-500 mt-2">
+          Fashion RAG có thể đưa ra gợi ý chưa hoàn toàn chính xác. Vui lòng đối chiếu với mã sản phẩm thực tế.
         </p>
       </div>
     </div>
@@ -461,75 +431,73 @@
   <div 
     x-show="showProductModal" 
     x-transition.opacity 
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
     @click.self="closeProductModal()"
     style="display: none;"
   >
     <div 
-      class="max-w-2xl w-full rounded-2xl border shadow-2xl overflow-hidden flex flex-col md:flex-row modal-enter-active"
-      :class="isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'"
+      class="max-w-xl w-full rounded-2xl border shadow-2xl overflow-hidden flex flex-col sm:flex-row modal-content-enter"
+      :class="isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'"
     >
       <template x-if="selectedProduct">
         <div class="contents">
           <!-- Product Photo -->
-          <div class="md:w-1/2 bg-slate-950 flex items-center justify-center p-6 relative">
+          <div class="sm:w-1/2 bg-zinc-950 flex items-center justify-center p-4 relative">
             <img 
               :src="'/api/products/' + selectedProduct.id + '/image'" 
               :alt="selectedProduct.productDisplayName"
-              class="max-h-80 w-auto object-contain rounded-xl shadow-lg" 
+              class="max-h-72 w-auto object-contain rounded-lg" 
             />
-            <div class="absolute top-4 left-4 px-2 py-1 rounded bg-black/60 text-xs font-mono text-indigo-300 backdrop-blur">
+            <div class="absolute top-3 left-3 px-1.5 py-0.5 rounded bg-black/60 text-[10px] font-mono text-zinc-400 border border-white/10">
               ID: <span x-text="selectedProduct.id"></span>
             </div>
           </div>
 
           <!-- Product Details -->
-          <div class="md:w-1/2 p-6 flex flex-col justify-between">
+          <div class="sm:w-1/2 p-5 flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400" x-text="selectedProduct.masterCategory + ' > ' + selectedProduct.subCategory"></span>
-                <button @click="closeProductModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400" x-text="selectedProduct.masterCategory + ' > ' + selectedProduct.subCategory"></span>
+                <button @click="closeProductModal()" class="text-zinc-500 hover:text-zinc-300 text-sm">✕</button>
               </div>
 
-              <h3 class="text-lg font-bold leading-snug mb-3" x-text="selectedProduct.productDisplayName"></h3>
+              <h3 class="text-sm font-semibold leading-snug mb-3" x-text="selectedProduct.productDisplayName"></h3>
 
               <!-- AI Visual Caption -->
-              <div class="p-3 rounded-xl mb-4 border text-xs" :class="isDarkMode ? 'bg-slate-950/60 border-slate-800/80 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'">
-                <p class="font-semibold text-indigo-400 mb-1 flex items-center gap-1">
-                  <span>🤖</span> AI BLIP Image Caption:
-                </p>
-                <p class="italic" x-text="'\"' + (selectedProduct.caption || 'Chưa có caption') + '\"'"></p>
+              <div class="p-2.5 rounded-lg mb-3 border text-xs" :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-300' : 'bg-zinc-50 border-zinc-200 text-zinc-700'">
+                <p class="font-medium text-[10px] text-zinc-400 mb-0.5">BLIP Visual Caption:</p>
+                <p class="italic text-[11px]" x-text="'\"' + (selectedProduct.caption || selectedProduct.productDisplayName) + '\"'"></p>
               </div>
 
               <!-- Metadata Grid -->
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <div class="p-2 rounded bg-slate-800/40">
-                  <span class="text-slate-400">Giới tính:</span>
-                  <span class="font-semibold block" x-text="selectedProduct.gender"></span>
+              <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                <div class="p-1.5 rounded bg-zinc-800/50">
+                  <span class="text-zinc-500">Giới tính:</span>
+                  <span class="font-medium block text-zinc-200" x-text="selectedProduct.gender"></span>
                 </div>
-                <div class="p-2 rounded bg-slate-800/40">
-                  <span class="text-slate-400">Màu sắc:</span>
-                  <span class="font-semibold block" x-text="selectedProduct.baseColour"></span>
+                <div class="p-1.5 rounded bg-zinc-800/50">
+                  <span class="text-zinc-500">Màu sắc:</span>
+                  <span class="font-medium block text-zinc-200" x-text="selectedProduct.baseColour"></span>
                 </div>
-                <div class="p-2 rounded bg-slate-800/40">
-                  <span class="text-slate-400">Loại trang phục:</span>
-                  <span class="font-semibold block" x-text="selectedProduct.articleType"></span>
+                <div class="p-1.5 rounded bg-zinc-800/50">
+                  <span class="text-zinc-500">Loại sản phẩm:</span>
+                  <span class="font-medium block text-zinc-200" x-text="selectedProduct.articleType"></span>
                 </div>
-                <div class="p-2 rounded bg-slate-800/40">
-                  <span class="text-slate-400">Mục đích sử dụng:</span>
-                  <span class="font-semibold block" x-text="selectedProduct.usage || 'N/A'"></span>
+                <div class="p-1.5 rounded bg-zinc-800/50">
+                  <span class="text-zinc-500">Sử dụng:</span>
+                  <span class="font-medium block text-zinc-200" x-text="selectedProduct.usage || 'N/A'"></span>
                 </div>
               </div>
             </div>
 
             <!-- Similarity Match Bar -->
-            <div class="mt-6 pt-4 border-t" :class="isDarkMode ? 'border-slate-800' : 'border-slate-100'">
-              <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-slate-400">Độ tương đồng ngữ nghĩa CLIP:</span>
-                <span class="font-mono font-bold text-indigo-400" x-text="(selectedProduct.score * 100).toFixed(1) + '%'"></span>
+            <div class="mt-4 pt-3 border-t" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-200'">
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="text-zinc-400">Độ tương đồng ngữ nghĩa:</span>
+                <span class="font-mono font-medium text-emerald-400" x-text="(selectedProduct.score * 100).toFixed(1) + '%'"></span>
               </div>
-              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-pink-500" :style="'width: ' + Math.min(100, selectedProduct.score * 250) + '%'"></div>
+              <div class="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                <div class="h-full bg-emerald-500" :style="'width: ' + Math.min(100, selectedProduct.score * 250) + '%'"></div>
               </div>
             </div>
           </div>
@@ -544,112 +512,110 @@
   <div 
     x-show="showAuthModal" 
     x-transition.opacity 
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
     style="display: none;"
   >
     <div 
-      class="max-w-md w-full rounded-2xl border p-6 shadow-2xl modal-enter-active"
-      :class="isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'"
+      class="max-w-sm w-full rounded-2xl border p-6 shadow-2xl modal-content-enter"
+      :class="isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'"
     >
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg shadow-indigo-500/20">
-          🛍️
-        </div>
-        <h3 class="text-xl font-bold" x-text="authMode === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản mới'"></h3>
-        <p class="text-xs text-slate-400 mt-1">Truy cập toàn bộ lịch sử tư vấn và lưu trữ phiên hỏi đáp</p>
+      <div class="text-center mb-5">
+        <h3 class="text-base font-semibold" x-text="authMode === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký tài khoản mới'"></h3>
+        <p class="text-xs text-zinc-400 mt-0.5">Truy cập để lưu và quản lý lịch sử tư vấn</p>
       </div>
 
       <!-- Quick Demo Login Button -->
       <button 
         @click="quickDemoLogin()"
-        class="w-full py-2.5 px-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 font-semibold text-xs flex items-center justify-center gap-2 mb-5 transition active:scale-[0.98]"
+        class="w-full py-2 px-3 rounded-lg border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs flex items-center justify-center gap-1.5 mb-4 transition"
       >
-        <span>⚡</span> Đăng nhập nhanh bằng tài khoản Demo (1-Click)
+        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        Đăng nhập nhanh (Tài khoản Demo)
       </button>
 
-      <div class="relative flex py-2 items-center mb-4">
-        <div class="flex-grow border-t" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'"></div>
-        <span class="flex-shrink mx-3 text-[11px] text-slate-400 uppercase font-semibold">Hoặc</span>
-        <div class="flex-grow border-t" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'"></div>
+      <div class="relative flex py-1.5 items-center mb-3">
+        <div class="flex-grow border-t" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-200'"></div>
+        <span class="flex-shrink mx-2 text-[10px] text-zinc-500 uppercase">Hoặc</span>
+        <div class="flex-grow border-t" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-200'"></div>
       </div>
 
       <!-- Tab Switcher -->
-      <div class="flex p-1 rounded-xl mb-4" :class="isDarkMode ? 'bg-slate-950' : 'bg-slate-100'">
+      <div class="flex p-0.5 rounded-lg mb-3" :class="isDarkMode ? 'bg-zinc-950' : 'bg-zinc-100'">
         <button 
           @click="authMode = 'login'"
-          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition"
-          :class="authMode === 'login' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+          class="flex-1 py-1 text-xs font-medium rounded transition"
+          :class="authMode === 'login' ? 'bg-zinc-800 text-zinc-100 shadow' : 'text-zinc-500 hover:text-zinc-300'"
         >
           Đăng nhập
         </button>
         <button 
           @click="authMode = 'register'"
-          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition"
-          :class="authMode === 'register' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-slate-200'"
+          class="flex-1 py-1 text-xs font-medium rounded transition"
+          :class="authMode === 'register' ? 'bg-zinc-800 text-zinc-100 shadow' : 'text-zinc-500 hover:text-zinc-300'"
         >
           Đăng ký
         </button>
       </div>
 
       <!-- Error Message -->
-      <div x-show="authForm.error" class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs mb-4" x-text="authForm.error"></div>
+      <div x-show="authForm.error" class="p-2.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-xs mb-3" x-text="authForm.error"></div>
 
       <!-- Form -->
-      <form @submit.prevent="handleAuthSubmit()" class="space-y-3">
+      <form @submit.prevent="handleAuthSubmit()" class="space-y-2.5">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Tên đăng nhập</label>
+          <label class="block text-[11px] font-medium text-zinc-400 mb-1">Tên đăng nhập</label>
           <input 
             type="text" 
             x-model="authForm.username" 
             required 
-            class="w-full py-2 px-3 rounded-xl border text-xs outline-none focus:border-indigo-500"
-            :class="isDarkMode ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-800'"
+            class="w-full py-1.5 px-3 rounded-lg border text-xs outline-none focus:border-zinc-500"
+            :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
           />
         </div>
 
         <template x-if="authMode === 'register'">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Email</label>
+            <label class="block text-[11px] font-medium text-zinc-400 mb-1">Email</label>
             <input 
-              type="email" 
+              type="text" 
               x-model="authForm.email" 
               required 
-              class="w-full py-2 px-3 rounded-xl border text-xs outline-none focus:border-indigo-500"
-              :class="isDarkMode ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-800'"
+              class="w-full py-1.5 px-3 rounded-lg border text-xs outline-none focus:border-zinc-500"
+              :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
             />
           </div>
         </template>
 
         <template x-if="authMode === 'register'">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Họ và tên</label>
+            <label class="block text-[11px] font-medium text-zinc-400 mb-1">Họ và tên</label>
             <input 
               type="text" 
               x-model="authForm.full_name" 
-              class="w-full py-2 px-3 rounded-xl border text-xs outline-none focus:border-indigo-500"
-              :class="isDarkMode ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-800'"
+              class="w-full py-1.5 px-3 rounded-lg border text-xs outline-none focus:border-zinc-500"
+              :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
             />
           </div>
         </template>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Mật khẩu</label>
+          <label class="block text-[11px] font-medium text-zinc-400 mb-1">Mật khẩu</label>
           <input 
             type="password" 
             x-model="authForm.password" 
             required 
             minlength="6"
-            class="w-full py-2 px-3 rounded-xl border text-xs outline-none focus:border-indigo-500"
-            :class="isDarkMode ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-800'"
+            class="w-full py-1.5 px-3 rounded-lg border text-xs outline-none focus:border-zinc-500"
+            :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
           />
         </div>
 
         <button 
           type="submit" 
           :disabled="authForm.loading"
-          class="w-full py-2.5 rounded-xl font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition active:scale-95"
+          class="w-full py-2 rounded-lg font-medium text-xs text-zinc-900 bg-white hover:bg-zinc-200 transition mt-2"
         >
-          <span x-show="!authForm.loading" x-text="authMode === 'login' ? 'Đăng nhập ngay' : 'Tạo tài khoản'"></span>
+          <span x-show="!authForm.loading" x-text="authMode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'"></span>
           <span x-show="authForm.loading">Đang xử lý...</span>
         </button>
       </form>
@@ -657,79 +623,57 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: ARCHITECTURE & RESEARCH REPORT (HO MINH HUNG) -->
+  <!-- MODAL: ARCHITECTURE & RESEARCH REPORT -->
   <!-- ========================================================================= -->
   <div 
     x-show="showArchitectureModal" 
     x-transition.opacity 
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
     @click.self="showArchitectureModal = false"
     style="display: none;"
   >
     <div 
-      class="max-w-2xl w-full rounded-2xl border p-6 shadow-2xl modal-enter-active max-h-[85vh] overflow-y-auto"
-      :class="isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'"
+      class="max-w-xl w-full rounded-2xl border p-5 shadow-2xl modal-content-enter max-h-[85vh] overflow-y-auto"
+      :class="isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'"
     >
-      <div class="flex items-center justify-between pb-3 border-b mb-4" :class="isDarkMode ? 'border-slate-800' : 'border-slate-100'">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">📑</span>
-          <div>
-            <h3 class="font-bold text-base">Kiến trúc Hệ thống Multimodal Fashion RAG</h3>
-            <p class="text-xs text-slate-400">Tác giả &amp; Nhà nghiên cứu: Hồ Minh Hưng</p>
-          </div>
+      <div class="flex items-center justify-between pb-3 border-b mb-3" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-200'">
+        <div>
+          <h3 class="font-semibold text-sm">Kiến trúc Hệ thống Multimodal Fashion RAG</h3>
+          <p class="text-[11px] text-zinc-400">Tác giả &amp; Nghiên cứu: Hồ Minh Hưng</p>
         </div>
-        <button @click="showArchitectureModal = false" class="text-slate-400 hover:text-slate-200">✕</button>
+        <button @click="showArchitectureModal = false" class="text-zinc-500 hover:text-zinc-300 text-sm">✕</button>
       </div>
 
-      <div class="space-y-4 text-xs leading-relaxed text-slate-300">
+      <div class="space-y-3.5 text-xs text-zinc-300 leading-relaxed">
         <div>
-          <h4 class="font-semibold text-indigo-400 text-sm mb-1">1. Động lực &amp; Mục tiêu</h4>
-          <p>Dự án giải quyết bài toán tư vấn thời trang thông minh bằng cách tích hợp mô hình ngôn ngữ lớn (LLMs) với không gian biểu diễn thị giác đa phương thức (Multimodal Embedding Space), giúp truy xuất trực quan các sản phẩm thực tế từ catalog 44,000+ items.</p>
-        </div>
-
-        <div>
-          <h4 class="font-semibold text-indigo-400 text-sm mb-1">2. Pipeline Kiến trúc Kỹ thuật</h4>
-          <ul class="list-disc pl-5 space-y-1.5">
-            <li><strong>Retrieval Engine:</strong> CLIP (<code class="bg-slate-800 px-1 py-0.5 rounded text-indigo-300 font-mono">openai/clip-vit-base-patch32</code>) ánh xạ truy vấn văn bản sang không gian 512 chiều, kết hợp <strong>FAISS</strong> tìm kiếm lân cận siêu tốc.</li>
-            <li><strong>Image Captioning:</strong> BLIP (<code class="bg-slate-800 px-1 py-0.5 rounded text-indigo-300 font-mono">Salesforce/blip-image-captioning-base</code>) với cơ chế lazy-loading và pre-computed caption cache 44,072 sản phẩm.</li>
-            <li><strong>Generator:</strong> Fine-tuned Flan-T5-large (<code class="bg-slate-800 px-1 py-0.5 rounded text-indigo-300 font-mono">minhunhooo/flan-t5-large-fashion-rag</code>) sinh câu trả lời ngắn gọn, có bằng chứng.</li>
-            <li><strong>Grounding Check:</strong> Kiểm tra mức độ bám sát catalog thực tế bằng thuật toán token overlap kiểm định.</li>
+          <h4 class="font-medium text-zinc-100 mb-1">1. Mô hình Kỹ thuật</h4>
+          <ul class="list-disc pl-4 space-y-1 text-zinc-400 text-[11px]">
+            <li><strong>CLIP ViT-B/32:</strong> Ánh xạ câu hỏi người dùng thành vector đặc trưng 512 chiều.</li>
+            <li><strong>FAISS Index:</strong> Lưu trữ và tìm kiếm vector tương đồng trên 44,072 sản phẩm thời trang.</li>
+            <li><strong>BLIP Captioning:</strong> Trích xuất mô tả thị giác chi tiết của sản phẩm để làm ngữ cảnh.</li>
+            <li><strong>Flan-T5-large Fine-tuned:</strong> Sinh câu trả lời tự nhiên có đối soát ngữ cảnh.</li>
           </ul>
         </div>
 
         <div>
-          <h4 class="font-semibold text-indigo-400 text-sm mb-1">3. Kết quả Thực nghiệm (Evaluation Benchmark)</h4>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">
-              <thead class="bg-slate-800/50">
-                <tr>
-                  <th class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">Chỉ số Đánh giá</th>
-                  <th class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">Điểm số Thực nghiệm</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">ROUGE-1</td>
-                  <td class="p-2 border font-mono font-bold text-indigo-400" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">0.4950</td>
-                </tr>
-                <tr>
-                  <td class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">ROUGE-L</td>
-                  <td class="p-2 border font-mono font-bold text-indigo-400" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">0.4372</td>
-                </tr>
-                <tr>
-                  <td class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">BERTScore-F1</td>
-                  <td class="p-2 border font-mono font-bold text-violet-400" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">0.9186</td>
-                </tr>
-                <tr>
-                  <td class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">Grounding-rate</td>
-                  <td class="p-2 border font-mono font-bold text-emerald-400" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">1.0000</td>
-                </tr>
-                <tr class="font-bold bg-indigo-500/10">
-                  <td class="p-2 border" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">Composite Score</td>
-                  <td class="p-2 border font-mono text-pink-400" :class="isDarkMode ? 'border-slate-800' : 'border-slate-200'">0.7907</td>
-                </tr>
-              </tbody>
-            </table>
+          <h4 class="font-medium text-zinc-100 mb-1.5">2. Kết quả Thực nghiệm (Evaluation Benchmark)</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+            <div class="p-2 rounded-lg bg-zinc-800/60 border border-zinc-700/60">
+              <p class="text-[10px] text-zinc-500">ROUGE-1</p>
+              <p class="text-sm font-semibold font-mono text-zinc-200">0.4950</p>
+            </div>
+            <div class="p-2 rounded-lg bg-zinc-800/60 border border-zinc-700/60">
+              <p class="text-[10px] text-zinc-500">BERTScore-F1</p>
+              <p class="text-sm font-semibold font-mono text-zinc-200">0.9186</p>
+            </div>
+            <div class="p-2 rounded-lg bg-zinc-800/60 border border-zinc-700/60">
+              <p class="text-[10px] text-zinc-500">Grounding Rate</p>
+              <p class="text-sm font-semibold font-mono text-emerald-400">1.0000</p>
+            </div>
+            <div class="p-2 rounded-lg bg-zinc-800/60 border border-zinc-700/60">
+              <p class="text-[10px] text-zinc-500">Composite</p>
+              <p class="text-sm font-semibold font-mono text-zinc-200">0.7907</p>
+            </div>
           </div>
         </div>
       </div>
@@ -742,26 +686,24 @@
   <div 
     x-show="showSettingsModal" 
     x-transition.opacity 
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
     @click.self="showSettingsModal = false"
     style="display: none;"
   >
     <div 
-      class="max-w-md w-full rounded-2xl border p-6 shadow-2xl modal-enter-active"
-      :class="isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'"
+      class="max-w-sm w-full rounded-2xl border p-5 shadow-2xl modal-content-enter"
+      :class="isDarkMode ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-900'"
     >
-      <div class="flex items-center justify-between pb-3 border-b mb-4" :class="isDarkMode ? 'border-slate-800' : 'border-slate-100'">
-        <h3 class="font-bold text-sm flex items-center gap-2">
-          <span>⚙️</span> Tuỳ chọn Truy xuất &amp; Lọc
-        </h3>
-        <button @click="showSettingsModal = false" class="text-slate-400 hover:text-slate-200">✕</button>
+      <div class="flex items-center justify-between pb-3 border-b mb-3" :class="isDarkMode ? 'border-zinc-800' : 'border-zinc-200'">
+        <h3 class="font-medium text-xs">Tuỳ chọn Truy xuất &amp; Lọc</h3>
+        <button @click="showSettingsModal = false" class="text-zinc-500 hover:text-zinc-300 text-sm">✕</button>
       </div>
 
-      <div class="space-y-4 text-xs">
+      <div class="space-y-3.5 text-xs">
         <div>
-          <div class="flex justify-between font-medium mb-1.5">
-            <span>Số lượng sản phẩm truy xuất (Top-K):</span>
-            <span class="font-mono text-indigo-400 font-bold" x-text="settings.top_k"></span>
+          <div class="flex justify-between font-medium mb-1">
+            <span class="text-zinc-400">Số sản phẩm truy xuất (Top-K):</span>
+            <span class="font-mono text-zinc-200" x-text="settings.top_k"></span>
           </div>
           <input 
             type="range" 
@@ -769,18 +711,18 @@
             max="10" 
             step="1" 
             x-model="settings.top_k"
-            class="w-full accent-indigo-600 cursor-pointer"
+            class="w-full accent-zinc-400 cursor-pointer"
           />
         </div>
 
         <div>
-          <label class="block font-medium mb-1.5">Lọc theo giới tính:</label>
+          <label class="block font-medium text-zinc-400 mb-1">Lọc theo giới tính:</label>
           <select 
             x-model="settings.gender_filter"
-            class="w-full p-2.5 rounded-xl border text-xs outline-none"
-            :class="isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'"
+            class="w-full p-2 rounded-lg border text-xs outline-none"
+            :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-200' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
           >
-            <option value="">Tất cả giới tính (Tự động trích xuất)</option>
+            <option value="">Tất cả (Tự động trích xuất)</option>
             <option value="Men">Nam (Men)</option>
             <option value="Women">Nữ (Women)</option>
             <option value="Boys">Bé trai (Boys)</option>
@@ -790,25 +732,25 @@
         </div>
 
         <div>
-          <label class="block font-medium mb-1.5">Lọc theo nhóm danh mục chính:</label>
+          <label class="block font-medium text-zinc-400 mb-1">Lọc theo danh mục chính:</label>
           <select 
             x-model="settings.category_filter"
-            class="w-full p-2.5 rounded-xl border text-xs outline-none"
-            :class="isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'"
+            class="w-full p-2 rounded-lg border text-xs outline-none"
+            :class="isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-200' : 'bg-zinc-50 border-zinc-300 text-zinc-900'"
           >
             <option value="">Tất cả danh mục</option>
             <option value="Apparel">Apparel (Quần áo)</option>
             <option value="Footwear">Footwear (Giày dép)</option>
-            <option value="Accessories">Accessories (Phụ kiện thời trang)</option>
+            <option value="Accessories">Accessories (Phụ kiện)</option>
             <option value="Personal Care">Personal Care</option>
           </select>
         </div>
 
         <button 
           @click="showSettingsModal = false"
-          class="w-full py-2.5 rounded-xl font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-500 transition mt-2"
+          class="w-full py-2 rounded-lg font-medium text-xs text-zinc-900 bg-white hover:bg-zinc-200 transition mt-1"
         >
-          Áp dụng tuỳ chọn
+          Áp dụng
         </button>
       </div>
     </div>
