@@ -299,6 +299,7 @@ async def send_message_stream(
             "grounding_status": rag_result["grounding"]["status"],
             "matched_terms": rag_result["grounding"]["matched_terms"],
             "latency": rag_result["latency"],
+            "filters": rag_result.get("filters", {}),
             "is_outfit": rag_result.get("is_outfit", False),
             "title": conv.title
         }

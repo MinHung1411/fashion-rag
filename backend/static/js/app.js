@@ -484,6 +484,7 @@ document.addEventListener('alpine:init', () => {
                   asstRef.grounding_status = event.grounding_status;
                   asstRef.matched_terms = event.matched_terms || [];
                   asstRef.latency = event.latency;
+                  asstRef.filters = event.filters || {};
                   asstRef.is_outfit = event.is_outfit || false;
                   if (event.title) {
                     this.activeConversationTitle = event.title;

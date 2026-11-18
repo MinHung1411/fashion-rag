@@ -257,11 +257,18 @@
           </svg>
         </div>
         
+        <!-- Bilingual & English Dataset Badge -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-800/90 border border-zinc-700/80 text-xs font-medium text-zinc-300 mb-5 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Catalog 44,000+ sản phẩm (Metadata tiếng Anh) • Hỗ trợ song ngữ AI Anh - Việt</span>
+        </div>
+        
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 text-zinc-100">
-          Hôm nay tôi có thể tư vấn thời trang gì cho bạn?
+          Fashion RAG Multimodal Assistant
         </h2>
         <p class="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed">
-          Tìm kiếm trong catalog 44,000+ sản phẩm thời trang bằng ngôn ngữ tự nhiên, được dẫn chứng trực quan bởi CLIP ViT-B/32 và Flan-T5.
+          Truy xuất và tư vấn thời trang thông minh bằng CLIP ViT-B/32 & fine-tuned Flan-T5. 
+          Hỗ trợ tra cứu bằng tiếng Anh hoặc tiếng Việt (tự động chuẩn hóa ngữ nghĩa thời trang).
         </p>
 
         <!-- Professional Prompt Suggestion Cards (Spacious 2x2 Grid) -->
@@ -333,6 +340,14 @@
                     <template x-if="msg.grounding_status === 'rejected'">
                       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 font-medium text-xs border border-amber-500/20">
                         Ngoài catalog
+                      </span>
+                    </template>
+
+                    <!-- Normalized query pill if translated -->
+                    <template x-if="msg.filters && msg.filters.normalized_query">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 font-medium text-xs border border-blue-500/20">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                        <span x-text="'Đã chuẩn hóa: \"' + msg.filters.normalized_query + '\"'"></span>
                       </span>
                     </template>
 
@@ -474,7 +489,7 @@
             x-model="inputQuery"
             @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
             rows="1"
-            placeholder="Hỏi về thời trang hoặc tải ảnh lên để tìm kiếm (Visual Search / Gợi ý phối đồ)..."
+            placeholder="Hỏi bằng tiếng Anh hoặc tiếng Việt (vd: black formal shoes for men / 1 vài mẫu giày đen công sở)..."
             class="w-full py-4 pl-3 pr-16 bg-transparent outline-none text-sm sm:text-base resize-none"
             :class="isDarkMode ? 'text-zinc-100 placeholder-zinc-500' : 'text-zinc-900 placeholder-zinc-400'"
           ></textarea>
@@ -490,7 +505,7 @@
         </form>
 
         <p class="text-xs text-center text-zinc-400 mt-2.5">
-          Fashion RAG hỗ trợ tìm kiếm bằng văn bản, tải ảnh lên (Visual Search) và gợi ý phối đồ AI trọn bộ.
+          Fashion RAG hỗ trợ song ngữ Anh - Việt, tìm kiếm bằng ảnh (Visual Search) và gợi ý phối đồ AI trọn bộ.
         </p>
       </div>
     </div>

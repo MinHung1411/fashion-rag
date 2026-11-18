@@ -16,6 +16,81 @@ from .catalog_service import catalog_service
 
 logger = logging.getLogger(__name__)
 
+VIETNAMESE_CHARS = set("àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ")
+
+VI_REPLACEMENTS = [
+    # Genders
+    (r"\b(nam giới|nam|đàn ông|phái mạnh|trai|con trai)\b", "men"),
+    (r"\b(nữ giới|phụ nữ|nữ|phái đẹp|gái|con gái|chị em)\b", "women"),
+    (r"\b(bé trai|con nít nam)\b", "boys"),
+    (r"\b(bé gái|con nít nữ)\b", "girls"),
+    (r"\b(cả nam và nữ|unisex)\b", "unisex"),
+    
+    # Categories & items
+    (r"\b(giày công sở|giày tây|giày da|giày lười|giày âu)\b", "formal shoes"),
+    (r"\b(giày sneaker|giày thể thao|sneakers|sneaker)\b", "sports sneakers"),
+    (r"\b(giày cao gót|cao gót)\b", "high heels"),
+    (r"\b(giày dép|giày)\b", "shoes footwear"),
+    (r"\b(dép kẹp|dép xỏ ngón|dép|sandal|xăng đan)\b", "sandals flip flops"),
+    (r"\b(áo sơ mi|sơ mi)\b", "formal shirt"),
+    (r"\b(áo thun polo|áo polo|polo)\b", "polo tshirt"),
+    (r"\b(áo thun|áo phông|áo cộc)\b", "tshirt"),
+    (r"\b(áo khoác blazer|blazer|áo vest|vest)\b", "blazer jacket"),
+    (r"\b(áo khoác gió|áo khoác|khoác)\b", "jacket coat"),
+    (r"\b(áo len|áo hoodie|hoodie|sweatshirt)\b", "sweater hoodie"),
+    (r"\b(áo croptop|croptop|áo hai dây|áo kiểu|áo nữ)\b", "tops topwear"),
+    (r"\b(váy đầm|váy|đầm)\b", "casual dress"),
+    (r"\b(chân váy)\b", "skirt"),
+    (r"\b(quần tây|quần âu|quần công sở)\b", "formal trousers"),
+    (r"\b(quần jean|quần bò|jeans|jean)\b", "jeans denim"),
+    (r"\b(quần short|quần cộc|quần đùi)\b", "shorts"),
+    (r"\b(quần jogger|quần thun|quần thể thao)\b", "track pants"),
+    (r"\b(quần)\b", "trousers"),
+    (r"\b(áo)\b", "topwear"),
+    (r"\b(túi xách|túi đeo chéo|túi xách tay|túi)\b", "handbag bag"),
+    (r"\b(balo|ba lô)\b", "backpack"),
+    (r"\b(đồng hồ)\b", "watch"),
+    (r"\b(thắt lưng|dây nịt)\b", "belt"),
+    (r"\b(kính mát|kính râm|kính)\b", "sunglasses"),
+    (r"\b(đồ lót|quần lót|áo lót|áo ngực)\b", "innerwear briefs bra"),
+    
+    # Colors
+    (r"\b(đen|màu đen)\b", "black"),
+    (r"\b(trắng|màu trắng)\b", "white"),
+    (r"\b(xanh dương|xanh biển|xanh navy|navy|xanh da trời|xanh lam)\b", "blue navy"),
+    (r"\b(xanh lá|xanh lục|xanh rêu)\b", "green"),
+    (r"\b(đỏ tươi|đỏ đô|đỏ rượu|màu đỏ|đỏ)\b", "red"),
+    (r"\b(vàng|màu vàng)\b", "yellow"),
+    (r"\b(hồng phấn|màu hồng|hồng)\b", "pink"),
+    (r"\b(xám|màu xám|ghi|màu ghi)\b", "grey"),
+    (r"\b(nâu|màu nâu|nâu bò)\b", "brown"),
+    (r"\b(cam|màu cam)\b", "orange"),
+    (r"\b(tím|màu tím)\b", "purple"),
+    (r"\b(be|màu be|kem|màu kem)\b", "beige"),
+    
+    # Styles & Occasions
+    (r"\b(công sở|đi làm|văn phòng|lịch sự|lịch lãm)\b", "office formal"),
+    (r"\b(năng động|trẻ trung|hiện đại|phong cách|thanh lịch|duyên dáng)\b", "stylish active"),
+    (r"\b(đi chơi|dạo phố|thường ngày|thoải mái)\b", "casual"),
+    (r"\b(thể thao|chạy bộ|gym)\b", "sports"),
+    (r"\b(đi tiệc|dự tiệc|dạ tiệc|đám cưới)\b", "party evening"),
+    (r"\b(mùa hè|hè|mát mẻ)\b", "summer"),
+    (r"\b(mùa đông|ấm áp)\b", "winter"),
+    (r"\b(họa tiết hoa|họa tiết|hoa nhí|hoa)\b", "floral print"),
+    
+    # Outfits / Stylist
+    (r"\b(set đồ|phối đồ|mix đồ|trọn bộ|combo đồ)\b", "complete outfit set"),
+]
+
+VI_STOPWORDS = [
+    r"\b(1 vài|vài|một vài|những|các|mẫu|kiểu|loại|có|không|cho tôi|tìm cho tôi|hãy tìm|gợi ý|tư vấn|xem|cho xem|hỏi về|cần tìm|muốn tìm|ở đâu|thế nào|đẹp|rẻ|xịn|hot|hot trend|mới nhất|dành cho|cho|thời trang|giúp tôi|hãy|bạn ơi|mình muốn|tôi muốn|hãy gợi ý|cho bạn|phù hợp)\b"
+]
+
+INNERWEAR_TRIGGER = re.compile(
+    r"\b(underwear|innerwear|bra|brief|briefs|panties|panty|boxer|lingerie|đồ lót|quần lót|áo lót|áo ngực)\b",
+    re.IGNORECASE
+)
+
 GENDER_PATTERNS = {
     "Men": r"\b(men|man|male|mens|gentleman|gentlemen)\b",
     "Women": r"\b(women|woman|female|womens|ladies|lady)\b",
@@ -159,6 +234,33 @@ class RagEngine:
         emb = F.normalize(emb, dim=-1)
         return emb.cpu().numpy().astype("float32")
 
+    def normalize_query(self, query: str) -> Tuple[str, Optional[str]]:
+        raw = query.strip()
+        is_vietnamese = any(c in VIETNAMESE_CHARS for c in raw.lower()) or any(
+            w in raw.lower() for w in ['giày', 'quần', 'áo', 'váy', 'đầm', 'nữ', 'nam', 'công sở', 'set đồ', 'phối đồ', 'dạo phố']
+        )
+        if not is_vietnamese:
+            return raw, None
+            
+        q = raw.lower()
+        for pat in VI_STOPWORDS:
+            q = re.sub(pat, " ", q)
+        for pat, rep in VI_REPLACEMENTS:
+            q = re.sub(pat, f" {rep} ", q)
+            
+        tokens = [w for w in re.findall(r"[a-zA-Z0-9]+", q) if len(w) >= 3 and w.isascii()]
+        seen = set()
+        cleaned = []
+        for t in tokens:
+            if t not in seen:
+                seen.add(t)
+                cleaned.append(t)
+                
+        norm_text = " ".join(cleaned)
+        if not norm_text:
+            return raw, None
+        return norm_text, raw
+
     def extract_filters(self, query: str) -> Dict[str, Any]:
         q = query.lower()
         filters: Dict[str, Any] = {}
@@ -172,7 +274,21 @@ class RagEngine:
             filters["terms"] = matched_terms[:3]
         return filters
 
-    def _row_matches_filters(self, row: dict, filters: dict) -> bool:
+    def _row_matches_filters(self, row: dict, filters: dict, query: str = "") -> bool:
+        # Strict negative guard: Never return Innerwear, Bra, Briefs, Nightdress unless explicitly asked
+        is_innerwear_query = bool(INNERWEAR_TRIGGER.search(query))
+        sub_cat = str(row.get("subCategory", ""))
+        master_cat = str(row.get("masterCategory", ""))
+        art_type = str(row.get("articleType", ""))
+        
+        if not is_innerwear_query:
+            if master_cat == "Personal Care":
+                return False
+            if sub_cat in ("Innerwear", "Loungewear and Nightwear"):
+                return False
+            if art_type in ("Bra", "Briefs", "Panties", "Trunk", "Innerwear Vests", "Nightdress", "Nightdress and Nighties", "Lingerie"):
+                return False
+
         if "gender" in filters:
             if row.get("gender") not in (filters["gender"], "Unisex"):
                 return False
@@ -202,10 +318,12 @@ class RagEngine:
             "reason": "Grounded to retrieved catalog context" if grounded else "Answer not strictly grounded to retrieved items"
         }
 
-    def _smart_fallback_generation(self, query: str, products: List[Dict[str, Any]]) -> str:
-        """High quality deterministic context synthesizer when T5 weights are loading."""
+    def _smart_fallback_generation(self, query: str, products: List[Dict[str, Any]], is_vietnamese: bool = True) -> str:
+        """High quality deterministic context synthesizer."""
         if not products:
-            return "Xin lỗi, không tìm thấy sản phẩm thời trang nào phù hợp với yêu cầu của bạn."
+            if is_vietnamese:
+                return "Xin lỗi, không tìm thấy sản phẩm thời trang nào phù hợp với yêu cầu của bạn trong catalog 44,000+ sản phẩm."
+            return "Sorry, no matching fashion products were found in the 44,000+ catalog."
             
         top1 = products[0]
         top1_name = top1.get("productDisplayName", "sản phẩm thời trang")
@@ -213,17 +331,33 @@ class RagEngine:
         category = top1.get("articleType") or top1.get("subCategory", "")
         gender = top1.get("gender", "")
         
-        if len(products) == 1:
-            return f"Dựa trên tìm kiếm, sản phẩm phù hợp nhất là '{top1_name}' ({color} {category} dành cho {gender})."
-        
-        top2 = products[1]
-        top2_name = top2.get("productDisplayName", "")
-        return (
-            f"Các lựa chọn hàng đầu gồm có '{top1_name}' và '{top2_name}', "
-            f"đáp ứng hoàn hảo tiêu chí '{query}' với thiết kế {color.lower()} và phong cách thời trang chuẩn xu hướng."
-        )
+        if is_vietnamese:
+            if len(products) == 1:
+                return f"Dựa trên catalog thời trang, sản phẩm nổi bật nhất là '{top1_name}' ({color} {category} dành cho {gender})."
+            top2 = products[1]
+            top2_name = top2.get("productDisplayName", "")
+            return (
+                f"Dựa trên catalog thời trang quốc tế, các gợi ý hàng đầu bao gồm '{top1_name}' và '{top2_name}'. "
+                f"Các sản phẩm sở hữu phong cách thiết kế chuẩn xu hướng, tone màu {color.lower()} và hoàn toàn phù hợp với tiêu chí của bạn."
+            )
+        else:
+            if len(products) == 1:
+                return f"Based on the fashion catalog, the top matching product is '{top1_name}' ({color} {category} for {gender})."
+            top2 = products[1]
+            top2_name = top2.get("productDisplayName", "")
+            return (
+                f"Based on the fashion catalog, top recommended options include '{top1_name}' and '{top2_name}', "
+                f"featuring {color.lower()} styling perfectly tailored for your request."
+            )
 
-    def generate_answer(self, prompt: str, query: str, products: List[Dict[str, Any]]) -> str:
+    def generate_answer(self, prompt: str, query: str, products: List[Dict[str, Any]], translated_from: Optional[str] = None) -> str:
+        is_vi = (translated_from is not None) or any(c in VIETNAMESE_CHARS for c in query.lower())
+        
+        # If user asked in Vietnamese, answer in clean Vietnamese
+        if is_vi:
+            return self._smart_fallback_generation(query, products, is_vietnamese=True)
+            
+        # If user asked in English, prefer fine-tuned Flan-T5
         if self.t5_ready and self.ft_model is not None and self.ft_tok is not None:
             try:
                 inputs = self.ft_tok(prompt, return_tensors="pt", truncation=True, max_length=400).to(self.device)
@@ -247,7 +381,7 @@ class RagEngine:
             except Exception as e:
                 logger.warning(f"Inference warning on T5: {e}")
 
-        return self._smart_fallback_generation(query, products)
+        return self._smart_fallback_generation(query, products, is_vietnamese=False)
 
     def is_outfit_query(self, query: str) -> bool:
         patterns = [
@@ -262,14 +396,15 @@ class RagEngine:
         self.initialize()
         t0 = time.time()
         
-        filters = self.extract_filters(query)
+        search_query, translated_from = self.normalize_query(query)
+        filters = self.extract_filters(search_query)
         gender = gender_filter or filters.get("gender") or "Men"
         
         slots_def = [
-            {"slot": "Trang phục chính", "icon": "👔" if gender == "Men" else "👗", "categories": ["Topwear", "Dress"], "sub_query": f"{query} shirt topwear dress"},
-            {"slot": "Quần / Chân váy", "icon": "👖", "categories": ["Bottomwear"], "sub_query": f"{query} trousers jeans bottomwear"},
-            {"slot": "Giày dép thời trang", "icon": "👞" if gender == "Men" else "👠", "categories": ["Footwear", "Shoes", "Sandal"], "sub_query": f"{query} formal casual shoes footwear"},
-            {"slot": "Phụ kiện hoàn thiện", "icon": "⌚" if gender == "Men" else "👜", "categories": ["Accessories", "Bags", "Watches", "Belts"], "sub_query": f"{query} accessories watch bag"}
+            {"slot": "Trang phục chính", "icon": "👔" if gender == "Men" else "👗", "categories": ["Topwear", "Dress"], "sub_query": f"{search_query} shirt topwear dress"},
+            {"slot": "Quần / Chân váy", "icon": "👖", "categories": ["Bottomwear"], "sub_query": f"{search_query} trousers jeans bottomwear"},
+            {"slot": "Giày dép thời trang", "icon": "👞" if gender == "Men" else "👠", "categories": ["Footwear", "Shoes", "Sandal"], "sub_query": f"{search_query} formal casual shoes footwear"},
+            {"slot": "Phụ kiện hoàn thiện", "icon": "⌚" if gender == "Men" else "👜", "categories": ["Accessories", "Bags", "Watches", "Belts"], "sub_query": f"{search_query} accessories watch bag"}
         ]
         
         outfit_items = []
@@ -281,6 +416,9 @@ class RagEngine:
             for ridx, score in zip(idxs[0].tolist(), scores[0].tolist()):
                 p = catalog_service.get_product_by_row(ridx)
                 if not p or p.get("gender") not in (gender, "Unisex"):
+                    continue
+                # Negative filter out innerwear for outfit slots
+                if not self._row_matches_filters(p, {}, query="outfit"):
                     continue
                 m_cat = p.get("masterCategory", "")
                 s_cat = p.get("subCategory", "")
@@ -322,6 +460,10 @@ class RagEngine:
         answer += f"\nSự kết hợp này tạo nên tổng thể hài hòa về tone màu, tôn dáng và cực kỳ phù hợp cho tiêu chí '{query}'."
 
         t_total = time.time() - t0
+        ret_filters = {"gender": gender, "type": "outfit_recommendation"}
+        if translated_from:
+            ret_filters["normalized_query"] = search_query
+
         return {
             "answer": answer,
             "query": query,
@@ -333,7 +475,7 @@ class RagEngine:
                 "matched_terms": [gender, "Outfit", "Mix & Match"],
                 "reason": "Gợi ý set đồ phối màu hoàn chỉnh từ đa danh mục catalog"
             },
-            "filters": {"gender": gender, "type": "outfit_recommendation"},
+            "filters": ret_filters,
             "latency": {
                 "retrieval_ms": round(t_retrieval * 1000, 1),
                 "generation_ms": 15.0,
@@ -383,9 +525,9 @@ class RagEngine:
                 p["score"] = float(score)
                 candidate_items.append(p)
                 
-        filtered_items = [p for p in candidate_items if self._row_matches_filters(p, filters)]
+        filtered_items = [p for p in candidate_items if self._row_matches_filters(p, filters, query=text_query or "")]
         if not filtered_items:
-            filtered_items = candidate_items
+            filtered_items = [p for p in candidate_items if self._row_matches_filters(p, {}, query=text_query or "")]
             
         top_products = filtered_items[:top_k]
         top1 = top_products[0] if top_products else {}
@@ -424,8 +566,10 @@ class RagEngine:
             return self.recommend_outfit(query, gender_filter=gender_filter)
         t0 = time.time()
         
-        # 1. CLIP Embedding
-        q_emb = self.embed_text_clip(query)
+        search_query, translated_from = self.normalize_query(query)
+        
+        # 1. CLIP Embedding using search_query
+        q_emb = self.embed_text_clip(search_query)
         
         # 2. FAISS Candidate Search
         scores, idxs = self.faiss_index.search(q_emb, settings.CANDIDATE_POOL)
@@ -436,8 +580,9 @@ class RagEngine:
 
         # Reject if similarity too low
         if best_score < settings.SIM_THRESHOLD:
+            msg = "Xin lỗi, không tìm thấy sản phẩm nào đủ độ liên quan trong catalog 44,000+ sản phẩm cho câu hỏi này." if translated_from else "Sorry, no matching fashion products found with sufficient similarity in the catalog."
             return {
-                "answer": "Xin lỗi, không tìm thấy sản phẩm nào đủ độ liên quan trong catalog 44,000+ sản phẩm cho câu hỏi này.",
+                "answer": msg,
                 "query": query,
                 "products": [],
                 "grounding": {
@@ -455,28 +600,31 @@ class RagEngine:
             }
 
         # 3. Filter Extraction & Filtering
-        filters = self.extract_filters(query)
+        filters = self.extract_filters(search_query)
         if gender_filter:
             filters["gender"] = gender_filter
         if category_filter:
             if "terms" not in filters:
                 filters["terms"] = []
             filters["terms"].append(category_filter)
+        if translated_from:
+            filters["normalized_query"] = search_query
 
         candidate_items = []
         for ridx, score in zip(candidates_idx, candidate_scores):
             p = catalog_service.get_product_by_row(ridx)
             if p:
-                p["score"] = float(score)
-                candidate_items.append(p)
+                p_copy = dict(p)
+                p_copy["score"] = float(score)
+                candidate_items.append(p_copy)
 
-        filtered_items = [p for p in candidate_items if self._row_matches_filters(p, filters)]
+        filtered_items = [p for p in candidate_items if self._row_matches_filters(p, filters, query=search_query)]
         filter_fallback = False
         if filters and len(filtered_items) == 0:
-            filtered_items = candidate_items
+            filtered_items = [p for p in candidate_items if self._row_matches_filters(p, {}, query=search_query)]
             filter_fallback = True
         elif not filters:
-            filtered_items = candidate_items
+            filtered_items = [p for p in candidate_items if self._row_matches_filters(p, {}, query=search_query)]
 
         top_products = filtered_items[:top_k]
 
@@ -492,13 +640,13 @@ class RagEngine:
 
         prompt = (
             f"Products available:\n{context}\n\n"
-            f"Question: {query}\n"
+            f"Question: {search_query}\n"
             f"Answer in 1-2 sentences, only mention products listed above:"
         )
 
         # 5. Generate Answer
         t1 = time.time()
-        answer = self.generate_answer(prompt, query, top_products)
+        answer = self.generate_answer(prompt, query, top_products, translated_from=translated_from)
         t_gen = time.time() - t1
         t_total = time.time() - t0
 

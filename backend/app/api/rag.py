@@ -12,28 +12,28 @@ router = APIRouter(prefix="/rag", tags=["RAG Engine"])
 
 CURATED_EXAMPLES = [
     {
-        "query": "Phối cho tôi một set đồ nam công sở lịch lãm",
-        "title": "Set đồ nam công sở",
-        "category": "AI Stylist • Mix & Match",
-        "description": "Tự động kết hợp áo sơ mi, quần âu, giày da và phụ kiện hoàn chỉnh"
+        "query": "What black formal shoes are available for men?",
+        "title": "Black Formal Shoes for Men",
+        "category": "Men • Footwear",
+        "description": "Giày tây da màu đen thanh lịch cho nam công sở"
     },
     {
         "query": "Do you have casual dresses for women in red?",
-        "title": "Váy đầm casual nữ",
-        "category": "Nữ • Trang phục",
-        "description": "Gợi ý váy đầm dạo phố màu đỏ trẻ trung và hiện đại"
+        "title": "Women Casual Red Dresses",
+        "category": "Women • Apparel",
+        "description": "Váy đầm dạo phố màu đỏ dành cho phái đẹp"
     },
     {
-        "query": "What black formal shoes are available for men?",
-        "title": "Giày da nam công sở",
-        "category": "Nam • Giày dép",
-        "description": "Tìm kiếm các mẫu giày tây da màu đen thanh lịch cho nam giới"
+        "query": "Recommend a stylish office outfit for men",
+        "title": "Men Office Outfit (Mix & Match)",
+        "category": "AI Stylist • Complete Outfit",
+        "description": "Gợi ý trọn bộ set đồ nam công sở (Áo, Quần, Giày, Phụ kiện)"
     },
     {
-        "query": "Show me white sneakers for men",
-        "title": "Sneakers trắng năng động",
-        "category": "Nam • Sneaker",
-        "description": "Tìm kiếm giày thể thao sneaker màu trắng phong cách tối giản"
+        "query": "Show me white sports sneakers for men",
+        "title": "Men White Sports Sneakers",
+        "category": "Men • Footwear",
+        "description": "Giày sneaker thể thao màu trắng năng động"
     }
 ]
 
