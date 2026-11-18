@@ -24,6 +24,19 @@ logger = logging.getLogger("FashionRAG")
 # Ensure database tables exist immediately
 Base.metadata.create_all(bind=engine)
 try:
+    from sqlalchemy import text
+    with engine.connect() as _c:
+        _cols = [r[1] for r in _c.execute(text("PRAGMA table_info(messages)")).fetchall()]
+        if "image_url" not in _cols:
+            _c.execute(text("ALTER TABLE messages ADD COLUMN image_url TEXT"))
+            _c.commit()
+        if "is_outfit" not in _cols:
+            _c.execute(text("ALTER TABLE messages ADD COLUMN is_outfit JSON"))
+            _c.commit()
+except Exception as _mig_err:
+    logger.warning(f"DB migration notice: {_mig_err}")
+
+try:
     _init_db = SessionLocal()
     seed_default_users(_init_db)
     _init_db.close()
